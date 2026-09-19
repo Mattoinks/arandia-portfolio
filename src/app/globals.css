@@ -1,0 +1,224 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #f8fafc;
+  --foreground: #0b1120;
+  --card: rgba(255, 255, 255, 0.72);
+  --card-foreground: #0b1120;
+  --card-border: rgba(15, 23, 42, 0.08);
+  --muted: #eef2f7;
+  --muted-foreground: #475569;
+  --primary: #4f46e5;
+  --primary-foreground: #ffffff;
+  --accent: #12853d;
+  --accent-foreground: #ffffff;
+  --border: rgba(15, 23, 42, 0.1);
+  --ring: #4f46e5;
+  --destructive: #dc2626;
+  --grid-line: rgba(15, 23, 42, 0.06);
+  --glow: rgba(79, 70, 229, 0.18);
+  --scrollbar-thumb: rgba(15, 23, 42, 0.2);
+}
+
+.dark {
+  --background: #09090b;
+  --foreground: #f4f4f5;
+  --card: rgba(255, 255, 255, 0.045);
+  --card-foreground: #f4f4f5;
+  --card-border: rgba(255, 255, 255, 0.09);
+  --muted: #131316;
+  --muted-foreground: #a1a1aa;
+  --primary: #6467f1;
+  --primary-foreground: #09090b;
+  --accent: #34d399;
+  --accent-foreground: #09090b;
+  --border: rgba(255, 255, 255, 0.09);
+  --ring: #6467f1;
+  --destructive: #f87171;
+  --grid-line: rgba(255, 255, 255, 0.06);
+  --glow: rgba(99, 102, 241, 0.28);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.15);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-card-border: var(--card-border);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
+  --font-heading: var(--font-space-grotesk);
+  --font-sans: var(--font-dm-sans);
+  --font-mono: var(--font-jetbrains-mono);
+}
+
+/*
+  Typography scale — single source of truth for text roles across the site.
+  Every text element should match one of these roles (weight, tracking,
+  color, and responsive steps); only the surrounding spacing/layout classes
+  vary per component.
+
+  Role          Classes                                                                Used for
+  ------------- ---------------------------------------------------------------------- --------------------------------------------
+  Display       font-heading text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl Section-level titles: Display statements (About, Contact) and H2 section headings (SectionHeading component)
+  H1 (page)     font-heading text-3xl font-semibold tracking-tight sm:text-5xl         Hero name — the document's one <h1>
+  H3 (card)     font-heading text-2xl font-semibold sm:text-3xl                        Card/content titles (project name, trait)
+  Eyebrow       font-mono text-sm uppercase tracking-[0.2em] text-primary              Section intro labels ("About Me", "Contact")
+  Label         font-mono text-sm uppercase tracking-[0.15em] text-muted-foreground    Field/meta labels (stats, captions, form labels)
+  Body-lg       text-base text-muted-foreground sm:text-lg                            Supporting paragraphs, descriptions
+  Body          text-sm text-muted-foreground                                         Secondary copy, card descriptions
+  Caption       text-xs text-muted-foreground                                         UI chrome: pills, badges, footer, tags
+*/
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  transition:
+    background-color 0.5s ease,
+    color 0.5s ease;
+}
+
+/* Subtle full-page grid overlay, masked so it fades toward the edges */
+.grid-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 64px 64px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
+  transition: background-image 0.5s ease;
+}
+
+/* Ambient glow that follows the cursor on fine-pointer devices (see GridOverlay.tsx) */
+.grid-spotlight {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(500px circle at var(--spot-x, 50%) var(--spot-y, 50%), var(--glow), transparent 70%);
+  transition: opacity 0.4s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grid-spotlight {
+    display: none;
+  }
+}
+
+/* Glassmorphic surface */
+.glass {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  transition:
+    background-color 0.5s ease,
+    border-color 0.5s ease,
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
+}
+
+.glow-border {
+  box-shadow:
+    0 0 0 1px var(--card-border),
+    0 8px 30px -12px var(--glow);
+}
+
+/* Custom cursor (fine-pointer devices only, see CustomCursor.tsx) */
+.custom-cursor-active,
+.custom-cursor-active a,
+.custom-cursor-active button {
+  cursor: none;
+}
+
+::selection {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 9999px;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Circular reveal for the dark/light toggle (see ThemeToggle.tsx), driven by
+   the View Transitions API. --x/--y are set to the click position just
+   before the transition starts. No-op in browsers without support. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-new(root) {
+  animation: theme-reveal 0.6s ease-in-out;
+}
+
+@keyframes theme-reveal {
+  from {
+    clip-path: circle(0% at var(--x, 50%) var(--y, 50%));
+  }
+  to {
+    clip-path: circle(150% at var(--x, 50%) var(--y, 50%));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+}
