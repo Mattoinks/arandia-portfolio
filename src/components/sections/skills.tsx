@@ -1,10 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Code2, Smartphone } from "lucide-react";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { GlassCard } from "@/components/ui/glass-card";
-import { SKILL_ICONS, SKILL_ICON_COLORS } from "@/components/icons/tech-icons";
+import { SKILL_ICON_SRC } from "@/components/icons/tech-icons";
 import { skillGroups, capabilities } from "@/lib/data";
 import { fadeUp, viewport } from "@/lib/motion";
 
@@ -24,21 +25,32 @@ export function Skills() {
       <div className="grid gap-6 lg:grid-cols-[1.1fr_1fr_1fr]">
         <div className="grid grid-cols-4 content-start gap-4">
           {allSkills.map((item, i) => {
-            const Icon = SKILL_ICONS[item.icon];
-            const color = SKILL_ICON_COLORS[item.icon] ?? "currentColor";
+            const src = SKILL_ICON_SRC[item.icon];
             return (
-              <motion.div
-                key={item.name}
-                initial={{ opacity: 0, y: 12 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={viewport}
-                transition={{ duration: 0.35, delay: i * 0.03, ease: "easeOut" }}
-                whileHover={{ y: -4 }}
-                title={item.name}
-                className="flex aspect-square items-center justify-center rounded-2xl bg-white/95 shadow-sm transition-shadow hover:shadow-md dark:bg-white/90"
-              >
-                {Icon && <Icon className="h-6 w-6 sm:h-7 sm:w-7" style={{ color }} />}
-              </motion.div>
+              <div key={item.name} className="group relative">
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={viewport}
+                  transition={{ duration: 0.35, delay: i * 0.03, ease: "easeOut" }}
+                  whileHover={{ y: -4 }}
+                  aria-label={item.name}
+                  className="relative flex aspect-square items-center justify-center overflow-hidden rounded-2xl bg-white/95 shadow-sm transition-shadow hover:shadow-md dark:bg-white/90"
+                >
+                  {src && (
+                    <Image
+                      src={src}
+                      alt={item.name}
+                      fill
+                      sizes="(max-width: 640px) 25vw, 120px"
+                      className="object-contain"
+                    />
+                  )}
+                </motion.div>
+                <span className="pointer-events-none absolute -bottom-7 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-full bg-foreground px-2.5 py-1 text-[10px] font-medium text-background opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100">
+                  {item.name}
+                </span>
+              </div>
             );
           })}
         </div>

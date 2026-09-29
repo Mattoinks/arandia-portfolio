@@ -7,9 +7,10 @@ describe("projects", () => {
     expect(new Set(slugs).size).toBe(slugs.length);
   });
 
-  it("gives every project a non-empty name and at least one tag", () => {
+  it("gives every project a non-empty name, role, and at least one tag", () => {
     for (const project of projects) {
       expect(project.name.trim().length).toBeGreaterThan(0);
+      expect(project.role.trim().length).toBeGreaterThan(0);
       expect(project.tags.length).toBeGreaterThan(0);
     }
   });

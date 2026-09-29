@@ -1,46 +1,19 @@
-import type { ComponentType, CSSProperties } from "react";
-import {
-  SiCss,
-  SiGit,
-  SiHtml5,
-  SiNextdotjs,
-  SiPostgresql,
-  SiTailwindcss,
-  SiVercel,
-  SiWireshark,
-} from "react-icons/si";
-import { Database, Network, RefreshCw, Rows3 } from "lucide-react";
-
-export const SKILL_ICONS: Record<
-  string,
-  ComponentType<{ className?: string; style?: CSSProperties }>
-> = {
-  nextjs: SiNextdotjs,
-  tailwind: SiTailwindcss,
-  html5: SiHtml5,
-  css3: SiCss,
-  postgresql: SiPostgresql,
-  git: SiGit,
-  vercel: SiVercel,
-  wireshark: SiWireshark,
-  database: Database,
-  normalize: Rows3,
-  crud: RefreshCw,
-  activedirectory: Network,
-};
-
-// Official/representative brand colors; generic (non-brand) icons use "currentColor".
-export const SKILL_ICON_COLORS: Record<string, string> = {
-  nextjs: "currentColor",
-  tailwind: "#38bdf8",
-  html5: "#e34f26",
-  css3: "#1572b6",
-  postgresql: "#4169e1",
-  git: "#f05032",
-  vercel: "currentColor",
-  wireshark: "#1679a7",
-  database: "currentColor",
-  normalize: "currentColor",
-  crud: "currentColor",
-  activedirectory: "currentColor",
+/** Skill icon images live in /public/assets/icons — see SKILL_ICON_SRC for the filename per key. */
+export const SKILL_ICON_SRC: Record<string, string> = {
+  nextjs: "/assets/icons/nextjs.jpg",
+  tailwind: "/assets/icons/tailwindcss.png",
+  html5: "/assets/icons/html5.png",
+  css3: "/assets/icons/css3.png",
+  postgresql: "/assets/icons/postgre.png",
+  git: "/assets/icons/git.png",
+  vercel: "/assets/icons/vercel.png",
+  database: "/assets/icons/sql.png",
+  normalize: "/assets/icons/normalization.png",
+  crud: "/assets/icons/crud.jpg",
+  javascript: "/assets/icons/javascript.png",
+  python: "/assets/icons/python.jpg",
+  github: "/assets/icons/github.png",
+  render: "/assets/icons/render.jpeg",
+  figma: "/assets/icons/figma.png",
+  notion: "/assets/icons/notion.png",
 };

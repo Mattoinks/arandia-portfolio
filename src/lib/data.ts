@@ -2,7 +2,7 @@ export const profile = {
   name: "Matthew Caramillo Arandia",
   role: "Full-Stack Developer & IT Professional",
   headline: "Engineering Scalable Systems & Immersive Digital Experiences",
-  location: "Remote / Philippines",
+  location: "Dasmariñas, Cavite, Philippines",
   greeting: "Available for select engagements",
   email: "mattarandia.07@gmail.com",
   avatar: "/assets/avatar/1X1-arandia.jpg",
@@ -16,7 +16,7 @@ export const profile = {
   ],
   bio: "I design and build full-stack products — mobile, web, and everything behind them — with a focus on clean architecture and interfaces that feel effortless.",
   stats: [
-    { label: "Projects", value: "3" },
+    { label: "Projects", value: "4" },
     { label: "Certificates", value: "2" },
     { label: "BSIT Graduated", value: "2027" },
   ],
@@ -62,12 +62,12 @@ export const techStack = [
 
 export const socials = [
   { label: "GitHub", href: "https://github.com/Mattoinks", icon: "github" },
-  { label: "LinkedIn", href: "https://linkedin.com/", icon: "linkedin" },
+  { label: "LinkedIn", href: "https://linkedin.com/in/mattoinks", icon: "linkedin" },
   { label: "X / Twitter", href: "https://x.com/", icon: "twitter" },
   { label: "Email", href: "mailto:mattarandia.07@gmail.com", icon: "mail" },
 ] as const;
 
-export type SkillGroupId = "frontend" | "backend" | "devops";
+export type SkillGroupId = "languages" | "frontend" | "backend" | "devops" | "tools";
 
 export interface SkillItem {
   name: string;
@@ -75,6 +75,14 @@ export interface SkillItem {
 }
 
 export const skillGroups: { id: SkillGroupId; label: string; items: SkillItem[] }[] = [
+  {
+    id: "languages",
+    label: "Programming Languages",
+    items: [
+      { name: "JavaScript", icon: "javascript" },
+      { name: "Python", icon: "python" },
+    ],
+  },
   {
     id: "frontend",
     label: "Frontend",
@@ -101,8 +109,16 @@ export const skillGroups: { id: SkillGroupId; label: string; items: SkillItem[] 
     items: [
       { name: "Git", icon: "git" },
       { name: "Vercel", icon: "vercel" },
-      { name: "Wireshark", icon: "wireshark" },
-      { name: "Active Directory", icon: "activedirectory" },
+    ],
+  },
+  {
+    id: "tools",
+    label: "Tools & Platforms",
+    items: [
+      { name: "GitHub", icon: "github" },
+      { name: "Render", icon: "render" },
+      { name: "Figma", icon: "figma" },
+      { name: "Notion", icon: "notion" },
     ],
   },
 ];
@@ -190,6 +206,7 @@ export interface Project {
   slug: string;
   name: string;
   tagline: string;
+  role: string;
   description: string;
   tags: string[];
   liveUrl?: string;
@@ -201,11 +218,29 @@ export interface Project {
 
 export const projects: Project[] = [
   {
+    slug: "infineon",
+    name: "RMA Masterfile Automation and Management System",
+    tagline: "Infineon",
+    role: "Freelance Full-Stack Developer · Infineon Technologies, Singapore",
+    description:
+      "A centralized RMA Masterfile Automation System, developed as a freelance project for Infineon Technologies, Singapore, to streamline Delivery Note processing, automate PDF data extraction, and centralize RMA records and lot breakdowns into an organized Excel masterfile. Implements data validation, duplicate detection, and automated record management, along with role-based portals for internal staff and requesters. Built with React, FastAPI, and Supabase PostgreSQL for centralized data management, with Excel export retained for reporting and external use.",
+    tags: ["Website"],
+    codeUrl: "https://github.com/Mattoinks/Masterfile-Automation-System.git",
+    thumbnail: "/assets/images/projects/INFINEON.png",
+    status: "in-progress",
+    architecture: {
+      database: "Details coming soon — data structure pending write-up.",
+      workflow: "Details coming soon — automation workflow pending write-up.",
+      logic: "Details coming soon — core logic pending write-up.",
+    },
+  },
+  {
     slug: "kalinga",
     name: "KALINGA",
     tagline: "Clinical & rehabilitation management system",
+    role: "Full-Stack Developer · Capstone Project",
     description:
-      "A clinical and rehabilitation management system for tracking patients, sessions, and care workflows across a mobile and web platform.",
+      "Kalinga is a role-based, responsive web application designed for Bridges of Hope Imus to streamline facility management and resident recovery tracking by replacing manual, paper-based procedures with a centralized PostgreSQL and ReactJS platform. Built with four dedicated workspaces for Guardians, Nurses, Program Staff, and Administrators, the system unifies admission and discharge request workflows, care documentation, recovery ladder progress monitoring, and visitation scheduling into a single secure ecosystem. By providing role-specific access control, real-time updates, and comprehensive operational dashboards, Kalinga improves administrative efficiency, record reliability, and communication among care providers and resident families.",
     tags: ["Mobile", "Web"],
     codeUrl: "https://github.com/dwightangelodecena-cloud/-BridgesOfHope---Backup.git",
     thumbnail: "/assets/images/projects/KALINGA.png",
@@ -220,6 +255,7 @@ export const projects: Project[] = [
     slug: "sahari-pay",
     name: "SAHARI PAY",
     tagline: "Mobile & web platform",
+    role: "Full-Stack Developer · Solo Client Project",
     description: "Full description coming soon.",
     tags: ["Mobile", "Web"],
     codeUrl: "https://github.com/Mattoinks/sahari-pay.git",
@@ -231,18 +267,20 @@ export const projects: Project[] = [
     },
   },
   {
-    slug: "infineon",
-    name: "Infineon",
-    tagline: "Website",
-    description: "Full description coming soon.",
-    tags: ["Website"],
-    codeUrl: "https://github.com/Mattoinks/Masterfile-Automation-System.git",
-    thumbnail: "/assets/images/projects/INFINEON.png",
+    slug: "signa2z",
+    name: "SIGNA2Z",
+    tagline: "Real-time ASL alphabet translation",
+    role: "Documentation, Quality Assurance & Testing",
+    description:
+      "SignA2Z is a computer vision-powered application designed to break communication barriers between Deaf and hearing individuals by providing real-time American Sign Language (ASL) alphabet translation into text. The system features both Android mobile and web dashboards integrated with a secure Google API login, translation history retrieval, and basic ASL learning modules with text and video tutorials. Scheduled for prototype completion by December 2025, the project targets at least 90% recognition accuracy and sub-second processing speeds while keeping its scope strictly focused on the alphabet and simple phrases without requiring specialized hardware or commercial app store deployment.",
+    tags: ["Mobile", "Web", "Computer Vision"],
+    codeUrl: "https://github.com/KManipis/SignA2ZRepository.git",
+    thumbnail: "/assets/images/projects/SIGNA2Z.png",
     status: "in-progress",
     architecture: {
-      database: "Details coming soon — data structure pending write-up.",
-      workflow: "Details coming soon — automation workflow pending write-up.",
-      logic: "Details coming soon — core logic pending write-up.",
+      database: "Details coming soon — schema for accounts, translation history, and learning modules pending write-up.",
+      workflow: "Details coming soon — real-time ASL recognition and translation pipeline pending write-up.",
+      logic: "Details coming soon — recognition accuracy and processing logic pending write-up.",
     },
   },
 ];

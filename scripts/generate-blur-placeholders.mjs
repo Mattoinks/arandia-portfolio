@@ -16,6 +16,7 @@ const IMAGES = {
   avatarCutout: "public/assets/avatar/avatar-no-bg.png",
   kalinga: "public/assets/images/projects/KALINGA.png",
   infineon: "public/assets/images/projects/INFINEON.png",
+  signa2z: "public/assets/images/projects/SIGNA2Z.png",
 };
 
 async function main() {

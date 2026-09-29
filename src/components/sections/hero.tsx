@@ -100,17 +100,6 @@ export function Hero() {
           viewport={{ once: false, margin: "-100px" }}
           className="mx-auto flex w-full max-w-3xl flex-col items-center text-center"
         >
-          <motion.div
-            variants={item}
-            className="glass mb-6 flex items-center gap-2 rounded-full px-4 py-1.5 text-xs text-muted-foreground"
-          >
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
-            </span>
-            {profile.greeting}
-          </motion.div>
-
           <motion.h1
             variants={item}
             className="text-balance font-heading text-3xl font-semibold leading-[1.1] tracking-tight sm:text-5xl"

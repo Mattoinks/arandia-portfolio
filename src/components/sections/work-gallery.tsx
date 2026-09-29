@@ -84,10 +84,12 @@ export function WorkGallery() {
                 data-cursor="hover"
                 initial={false}
                 animate={{
-                  x: diff * 300,
-                  scale: isActive ? 1 : 0.88,
-                  opacity: Math.abs(diff) > 1 ? 0 : isActive ? 1 : 0.4,
-                  filter: isActive ? "brightness(1)" : "brightness(0.5)",
+                  x: diff * 190,
+                  y: Math.abs(diff) * 14,
+                  rotate: diff * 5,
+                  scale: isActive ? 1 : 0.86,
+                  opacity: Math.abs(diff) > 2 ? 0 : isActive ? 1 : 0.75,
+                  filter: isActive ? "brightness(1)" : "brightness(0.82)",
                   zIndex: 10 - Math.abs(diff),
                 }}
                 whileTap={{ scale: 0.95 }}
@@ -161,23 +163,32 @@ export function WorkGallery() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -12 }}
           transition={{ duration: 0.25 }}
-          className="mx-auto mt-10 max-w-xl text-center"
+          className="mx-auto mt-10 max-w-4xl text-center"
         >
           <div className="flex flex-wrap items-center justify-center gap-2">
             {project.tags.map((tag) => (
               <span
                 key={tag}
-                className="rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground"
+                className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground"
               >
                 {tag}
               </span>
             ))}
           </div>
-          <h3 className="mt-3 font-heading text-2xl font-semibold sm:text-3xl">{project.name}</h3>
-          <p className="mt-1 text-sm text-muted-foreground">{project.tagline}</p>
-          <p className="mt-3 text-sm text-muted-foreground/80">{project.description}</p>
+          <h3 className="text-balance mt-4 font-heading text-3xl font-bold leading-tight sm:text-4xl">
+            {project.name}
+          </h3>
+          <p className="mt-2 text-base font-medium text-muted-foreground sm:text-lg">
+            {project.tagline}
+          </p>
+          <p className="mt-2 font-mono text-sm uppercase tracking-[0.15em] text-primary">
+            {project.role}
+          </p>
+          <p className="mt-4 text-base leading-relaxed text-muted-foreground/80 sm:text-lg">
+            {project.description}
+          </p>
 
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             {project.liveUrl && (
               <MagneticButton href={project.liveUrl}>
                 View Project <ExternalLink className="h-4 w-4" strokeWidth={2} />
@@ -193,7 +204,7 @@ export function WorkGallery() {
                 type="button"
                 onClick={() => setDeepDive(project)}
                 data-cursor="hover"
-                className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground active:scale-95 cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground active:scale-95 cursor-pointer"
               >
                 <Layers className="h-3.5 w-3.5" strokeWidth={2} /> Deep-Dive
               </button>
