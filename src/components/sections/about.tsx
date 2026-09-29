@@ -58,7 +58,7 @@ export function About() {
             <motion.div
               initial={{ clipPath: "inset(0 100% 0 0)" }}
               whileInView={{ clipPath: "inset(0 0% 0 0)" }}
-              viewport={viewport}
+              viewport={{ once: true, margin: "-80px" }}
               transition={{ duration: 0.9, ease: EASE, delay: 0.2 }}
               className="relative h-24 w-24 shrink-0 overflow-hidden rounded-full border border-border sm:h-28 sm:w-28"
             >
