@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useTheme } from "next-themes";
 
-export function Logo() {
+export function Logo({ href = "#top" }: { href?: string }) {
   const { resolvedTheme } = useTheme();
   // Site defaults to dark theme (see ThemeProvider), so assume dark before
   // mount to avoid a flash of the wrong logo while resolvedTheme resolves.
@@ -18,8 +19,8 @@ export function Logo() {
   const src = isDark ? "/assets/images/og/WHITEM.jpg" : "/assets/images/og/BLACKM.jpg";
 
   return (
-    <a href="#top" aria-label="Home" className="relative block h-7 w-7 shrink-0 cursor-pointer">
-      <Image src={src} alt="" fill sizes="28px" className="rounded-md object-contain" priority />
-    </a>
+    <Link href={href} aria-label="Home" className="relative block h-7 w-7 shrink-0 cursor-pointer">
+      <Image src={src} alt="" fill sizes="28px" className="rounded-md object-contain" preload />
+    </Link>
   );
 }

@@ -4,8 +4,9 @@ import { useEffect, useState, type MouseEvent } from "react";
 import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
-export function ThemeToggle() {
+export function ThemeToggle({ bare = false }: { bare?: boolean }) {
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const shouldReduceMotion = useReducedMotion();
@@ -16,7 +17,7 @@ export function ThemeToggle() {
   useEffect(() => setMounted(true), []);
 
   if (!mounted) {
-    return <div className="h-10 w-10 rounded-full glass" aria-hidden />;
+    return <div className={bare ? "h-8 w-8" : "h-10 w-10 rounded-full border border-border"} aria-hidden />;
   }
 
   const isDark = resolvedTheme === "dark";
@@ -40,19 +41,22 @@ export function ThemeToggle() {
       onClick={handleToggle}
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       aria-pressed={isDark}
-      className="glass relative flex h-10 w-10 items-center justify-center rounded-full transition-transform hover:scale-105 active:scale-95 cursor-pointer"
+      className={cn(
+        "press relative flex items-center justify-center rounded-full transition-colors duration-200 hover:bg-foreground/[0.07] cursor-pointer",
+        bare ? "h-8 w-8" : "h-10 w-10 border border-border",
+      )}
     >
       <motion.span
         key={isDark ? "moon" : "sun"}
-        initial={{ opacity: 0, rotate: -90, scale: 0.5 }}
-        animate={{ opacity: 1, rotate: 0, scale: 1 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
+        initial={{ opacity: 0, rotate: -60, scale: 0.8, filter: "blur(3px)" }}
+        animate={{ opacity: 1, rotate: 0, scale: 1, filter: "blur(0px)" }}
+        transition={{ type: "spring", duration: 0.4, bounce: 0.2 }}
         className="flex items-center justify-center"
       >
         {isDark ? (
-          <Moon className="h-[18px] w-[18px] text-foreground" strokeWidth={1.75} />
+          <Moon className="h-4 w-4 text-foreground" strokeWidth={1.5} />
         ) : (
-          <Sun className="h-[18px] w-[18px] text-foreground" strokeWidth={1.75} />
+          <Sun className="h-4 w-4 text-foreground" strokeWidth={1.5} />
         )}
       </motion.span>
     </button>

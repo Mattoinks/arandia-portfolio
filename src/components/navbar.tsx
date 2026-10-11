@@ -1,150 +1,267 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "framer-motion";
+import { ArrowUpRight, Search } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { useCommandMenu } from "@/components/command-menu";
+import { useLocalTime } from "@/hooks/use-local-time";
+import { socials } from "@/lib/data";
 import { cn } from "@/lib/utils";
+import { EASE, EASE_OUT } from "@/lib/motion";
+import { isProgrammaticScroll, lockScroll, scrollToTarget } from "@/lib/smooth-scroll";
 
 const NAV_LINKS = [
-  { href: "#skills", label: "What I Can Do" },
+  { href: "#skills", label: "Capabilities" },
   { href: "#work", label: "Work" },
   { href: "#certifications", label: "Certifications" },
   { href: "#education", label: "Education" },
-  { href: "#about", label: "About Me" },
+  { href: "#about", label: "About" },
 ];
+
+// A section becomes "current" once its top has scrolled past this line below
+// the floating navbar.
+const TRIGGER_OFFSET = 160;
+
+function Hamburger({ open }: { open: boolean }) {
+  return (
+    <span className="relative block h-3 w-4" aria-hidden>
+      <span
+        className={cn(
+          "absolute left-0 h-[1.5px] w-4 rounded-full bg-current transition-transform duration-500 ease-out-strong",
+          open ? "top-[5px] rotate-45" : "top-0.5",
+        )}
+      />
+      <span
+        className={cn(
+          "absolute left-0 h-[1.5px] rounded-full bg-current transition-[transform,width] duration-500 ease-out-strong",
+          open ? "top-[5px] w-4 -rotate-45" : "top-[0.53125rem] w-2.5",
+        )}
+      />
+    </span>
+  );
+}
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [hidden, setHidden] = useState(false);
   const [activeHash, setActiveHash] = useState("#top");
+  const sectionsRef = useRef<HTMLElement[]>([]);
+  const { scrollY } = useScroll();
+  const { open: openCommandMenu } = useCommandMenu();
+  const time = useLocalTime();
+  const isMac = useSyncExternalStore(
+    () => () => {},
+    () => /Mac|iPhone|iPad/.test(navigator.platform),
+    () => true,
+  );
 
   useEffect(() => {
-    const sections = NAV_LINKS.map((l) => document.querySelector(l.href)).filter(
+    sectionsRef.current = NAV_LINKS.map((l) => document.querySelector<HTMLElement>(l.href)).filter(
       (el): el is HTMLElement => !!el,
     );
-
-    // A section becomes "current" once its top has scrolled past this line
-    // below the fixed navbar — not just while it's centered in the viewport.
-    // This tracks scroll position directly instead of intersection ratios,
-    // so it can't get stuck on a stale section when one part of the page
-    // (e.g. the second half of the hero) isn't itself a nav target.
-    const TRIGGER_OFFSET = 160;
-
-    const onScroll = () => {
-      setScrolled(window.scrollY > 8);
-      if (sections.length === 0) return;
-
-      let current = sections[0];
-      for (const section of sections) {
-        if (section.getBoundingClientRect().top <= TRIGGER_OFFSET) current = section;
-      }
-      setActiveHash(`#${current.id}`);
-    };
-
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
   }, []);
 
+  useMotionValueEvent(scrollY, "change", (y) => {
+    const prev = scrollY.getPrevious() ?? 0;
+    setScrolled(y > 8);
+    // Tuck the bar away while reading downward; bring it back on any upward scroll.
+    // Link-triggered glides keep the bar in place so it doesn't flicker away mid-jump.
+    if (isProgrammaticScroll()) setHidden(false);
+    else {
+      setHidden(y > 240 && y > prev + 2);
+      if (y < prev - 2) setHidden(false);
+    }
+
+    let current: HTMLElement | null = null;
+    for (const section of sectionsRef.current) {
+      if (section.getBoundingClientRect().top <= TRIGGER_OFFSET) current = section;
+    }
+    setActiveHash(current ? `#${current.id}` : "#top");
+  });
+
+  useEffect(() => {
+    if (!open) return;
+    lockScroll(true);
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      lockScroll(false);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  const showBar = !hidden || open;
+
+  // Scrolling is locked while the menu is open, so close it first, then glide.
+  const navigateFromMenu = (e: React.MouseEvent, href: string) => {
+    e.preventDefault();
+    setOpen(false);
+    requestAnimationFrame(() => scrollToTarget(href));
+  };
+
   return (
-    <motion.header
-      initial={{ y: -24, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ type: "spring", stiffness: 260, damping: 26 }}
-      className="fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-4"
-    >
-      <nav
-        className={cn(
-          "flex w-full max-w-4xl items-center justify-between rounded-full border border-border bg-background px-5 py-2.5 transition-shadow duration-300",
-          scrolled && "shadow-[0_8px_30px_-12px_rgba(0,0,0,0.35)]",
-        )}
+    <>
+      <motion.header
+        initial={{ y: -24, opacity: 0 }}
+        animate={{ y: showBar ? 0 : -96, opacity: showBar ? 1 : 0 }}
+        transition={{ duration: 0.6, ease: EASE }}
+        className="site-nav fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-[max(1rem,env(safe-area-inset-top))]"
       >
-        <div className="flex items-center gap-2.5">
-          <Logo />
-          <span className="hidden font-heading text-sm font-semibold tracking-tight sm:inline">
-            MATTHEW<span className="text-primary">.</span>DEV
-          </span>
-        </div>
+        <nav
+          aria-label="Primary"
+          className={cn(
+            "flex w-full max-w-5xl items-center justify-between rounded-full border py-2 pl-3 pr-2 transition-[background-color,border-color,box-shadow] duration-500",
+            scrolled && !open
+              ? "glass border-card-border shadow-[0_12px_40px_-16px_rgb(var(--shadow-tint)/0.35)] backdrop-blur-xl backdrop-saturate-150"
+              : "border-transparent bg-transparent",
+          )}
+        >
+          <div className="flex items-center gap-2.5 pl-1">
+            <Logo />
+            <span className="hidden font-mono text-xs font-medium uppercase tracking-[0.14em] sm:inline">
+              Arandia<span className="text-primary">.</span>dev
+            </span>
+          </div>
 
-        <div className="hidden items-center gap-1 lg:flex">
-          {NAV_LINKS.map((link) => (
+          <div className="hidden items-center lg:flex">
+            {NAV_LINKS.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                aria-current={activeHash === link.href ? "true" : undefined}
+                className={cn(
+                  "relative rounded-full px-3.5 py-2 text-[0.8125rem] transition-colors duration-200 cursor-pointer",
+                  activeHash === link.href ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {activeHash === link.href && (
+                  <motion.span
+                    layoutId="nav-active-pill"
+                    className="absolute inset-0 rounded-full bg-foreground/[0.07]"
+                    transition={{ type: "spring", duration: 0.45, bounce: 0.15 }}
+                  />
+                )}
+                <span className="relative z-10">{link.label}</span>
+              </a>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* Utility group: search + theme share one pill, split by a hairline */}
+            <div className="flex h-10 items-center rounded-full border border-border p-1">
+              <button
+                type="button"
+                onClick={openCommandMenu}
+                aria-label="Search the site"
+                aria-keyshortcuts="Control+K Meta+K"
+                className="press hidden h-8 items-center gap-2 rounded-full pl-2.5 pr-1.5 text-[0.8125rem] text-muted-foreground transition-colors duration-200 hover:bg-foreground/[0.07] hover:text-foreground cursor-pointer md:inline-flex"
+              >
+                <Search className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden />
+                <span className="hidden xl:inline">Search</span>
+                <span className="kbd" suppressHydrationWarning>
+                  {isMac ? "⌘K" : "Ctrl K"}
+                </span>
+              </button>
+              <span className="mx-1 hidden h-4 w-px bg-border md:block" aria-hidden />
+              <ThemeToggle bare />
+            </div>
             <a
-              key={link.href}
-              href={link.href}
-              aria-current={activeHash === link.href ? "page" : undefined}
-              className={cn(
-                "relative rounded-full px-3.5 py-1.5 text-sm transition-colors cursor-pointer",
-                activeHash === link.href
-                  ? "text-foreground"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
+              href="#contact"
+              className="press group hidden h-10 items-center gap-2 rounded-full bg-foreground pl-4 pr-1.5 text-[0.8125rem] font-medium text-background shadow-[inset_0_1px_0_rgb(255_255_255/0.15)] cursor-pointer sm:inline-flex"
             >
-              {activeHash === link.href && (
-                <motion.span
-                  layoutId="nav-active-pill"
-                  className="absolute inset-0 rounded-full bg-foreground/10"
-                  transition={{ type: "spring", stiffness: 380, damping: 32 }}
-                />
-              )}
-              <span className="relative z-10">{link.label}</span>
+              <span className="live-dot h-1.5 w-1.5 rounded-full bg-primary" aria-hidden />
+              Hire me
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-background/15" aria-hidden>
+                <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 ease-out-strong group-hover:-translate-y-px group-hover:translate-x-px" strokeWidth={1.75} />
+              </span>
             </a>
-          ))}
-        </div>
+            <button
+              type="button"
+              onClick={() => setOpen((o) => !o)}
+              aria-label={open ? "Close menu" : "Open menu"}
+              aria-expanded={open}
+              aria-controls="mobile-menu"
+              className="press flex h-10 w-10 items-center justify-center rounded-full border border-border cursor-pointer lg:hidden"
+            >
+              <Hamburger open={open} />
+            </button>
+          </div>
+        </nav>
+      </motion.header>
 
-        <div className="flex items-center gap-3">
-          <ThemeToggle />
-          <a
-            href="#contact"
-            className="hidden items-center rounded-full bg-foreground px-5 py-2 text-sm font-semibold text-background transition-transform hover:scale-105 active:scale-95 cursor-pointer sm:inline-flex"
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            id="mobile-menu"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1, transition: { duration: 0.3, ease: EASE_OUT } }}
+            exit={{ opacity: 0, transition: { duration: 0.2, ease: EASE_OUT, delay: 0.05 } }}
+            className="fixed inset-0 z-40 flex flex-col bg-background/85 px-6 pb-[max(2rem,env(safe-area-inset-bottom))] pt-28 backdrop-blur-2xl lg:hidden"
           >
-            Hire Me
-          </a>
-          <button
-            type="button"
-            onClick={() => setOpen((o) => !o)}
-            aria-label={open ? "Close menu" : "Open menu"}
-            aria-expanded={open}
-            className="glass flex h-10 w-10 items-center justify-center rounded-full transition-transform hover:scale-105 active:scale-95 cursor-pointer lg:hidden"
-          >
-            {open ? <X className="h-[18px] w-[18px]" /> : <Menu className="h-[18px] w-[18px]" />}
-          </button>
-        </div>
-      </nav>
+            <nav aria-label="Mobile" className="flex-1">
+              <ul>
+                {NAV_LINKS.map((link, i) => (
+                  <li key={link.href} className="overflow-hidden border-b border-border">
+                    <motion.a
+                      href={link.href}
+                      onClick={(e) => navigateFromMenu(e, link.href)}
+                      initial={{ y: "100%" }}
+                      animate={{ y: "0%", transition: { duration: 0.7, ease: EASE, delay: 0.05 + i * 0.05 } }}
+                      exit={{ y: "100%", transition: { duration: 0.25, ease: EASE_OUT } }}
+                      className="flex items-baseline justify-between py-4"
+                    >
+                      <span
+                        className={cn(
+                          "font-heading text-4xl font-medium tracking-[-0.04em]",
+                          activeHash === link.href ? "text-foreground" : "text-muted-foreground",
+                        )}
+                      >
+                        {link.label}
+                      </span>
+                      <span className="font-mono text-[0.6875rem] text-muted-foreground tabular">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                    </motion.a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
 
-      <motion.div
-        initial={false}
-        animate={{ height: open ? "auto" : 0, opacity: open ? 1 : 0 }}
-        transition={{ duration: 0.25, ease: "easeOut" }}
-        className={cn(
-          "absolute left-4 right-4 top-[calc(100%+8px)] overflow-hidden rounded-2xl border border-border bg-background lg:hidden",
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0, transition: { duration: 0.6, ease: EASE, delay: 0.35 } }}
+              exit={{ opacity: 0, transition: { duration: 0.15 } }}
+              className="space-y-6"
+            >
+              <a
+                href="#contact"
+                onClick={(e) => navigateFromMenu(e, "#contact")}
+                className="press flex items-center justify-center gap-2 rounded-full bg-foreground px-4 py-4 text-sm font-medium text-background"
+              >
+                <span className="live-dot h-1.5 w-1.5 rounded-full bg-primary" aria-hidden />
+                Hire me
+              </a>
+              <div className="flex items-center justify-between font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground">
+                <div className="flex gap-4">
+                  {socials
+                    .filter((s) => s.icon === "github" || s.icon === "linkedin")
+                    .map((s) => (
+                      <a key={s.label} href={s.href} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1">
+                        {s.label} <ArrowUpRight className="h-3 w-3" strokeWidth={1.5} />
+                      </a>
+                    ))}
+                </div>
+                <span className="tabular" suppressHydrationWarning>
+                  {time && `${time} PHT`}
+                </span>
+              </div>
+            </motion.div>
+          </motion.div>
         )}
-      >
-        <div className="flex flex-col gap-1 p-3">
-          {NAV_LINKS.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              onClick={() => setOpen(false)}
-              className="rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-foreground/5 hover:text-foreground cursor-pointer"
-            >
-              {link.label}
-            </a>
-          ))}
-          <a
-            href="#contact"
-            onClick={() => setOpen(false)}
-            className="mt-1 rounded-lg bg-foreground px-3 py-2.5 text-center text-sm font-semibold text-background transition-transform active:scale-95 cursor-pointer"
-          >
-            Hire Me
-          </a>
-        </div>
-      </motion.div>
-    </motion.header>
+      </AnimatePresence>
+    </>
   );
 }

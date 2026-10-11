@@ -1,30 +1,41 @@
-import type { Metadata } from "next";
-import { DM_Sans, JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Geist, Geist_Mono, Instrument_Serif, Newsreader } from "next/font/google";
 import { MotionConfig } from "framer-motion";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import { CustomCursor } from "@/components/custom-cursor";
-import { GridOverlay } from "@/components/grid-overlay";
+import { Backdrop } from "@/components/backdrop";
+import { SmoothScroll } from "@/components/smooth-scroll";
+import { ClickSpark } from "@/components/reactbits/click-spark";
+import { ThemeColorSync } from "@/components/theme-color-sync";
+import { CommandMenuProvider } from "@/components/command-menu";
 import { ScrollProgress } from "@/components/scroll-progress";
 import { profile, socials } from "@/lib/data";
 import { SITE_URL } from "@/lib/site";
 
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
+const geist = Geist({
+  variable: "--font-geist",
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
 });
 
-const dmSans = DM_Sans({
-  variable: "--font-dm-sans",
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
 });
 
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
+// Editorial text serif for long-form statements (About bio). Variable, with the
+// optical-size axis so letterforms tighten and gain contrast at display sizes.
+const newsreader = Newsreader({
+  variable: "--font-newsreader",
   subsets: ["latin"],
-  weight: ["400", "500"],
+  style: ["normal", "italic"],
+  axes: ["opsz"],
+});
+
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-instrument-serif",
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
 });
 
 const TITLE = "Matthew C. Arandia — Full-Stack Developer & IT Professional";
@@ -61,6 +72,19 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  // Paint under the notch/home indicator; fixed chrome pads back with env(safe-area-inset-*).
+  viewportFit: "cover",
+  // Android: the keyboard shrinks the layout viewport, matching iOS.
+  interactiveWidget: "resizes-content",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f6f5f1" },
+    { media: "(prefers-color-scheme: dark)", color: "#0c0c0b" },
+  ],
+};
+
 const personJsonLd = {
   "@context": "https://schema.org",
   "@type": "Person",
@@ -77,7 +101,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${spaceGrotesk.variable} ${dmSans.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${geist.variable} ${geistMono.variable} ${instrumentSerif.variable} ${newsreader.variable} h-full antialiased`}
     >
       <body className="relative min-h-full flex flex-col">
         <script
@@ -94,10 +118,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </a>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange={false}>
           <MotionConfig reducedMotion="user">
-            <GridOverlay />
-            <CustomCursor />
+            <Backdrop />
+            <SmoothScroll />
+            <ClickSpark />
+            <ThemeColorSync />
             <ScrollProgress />
-            <div className="relative z-10 flex min-h-full flex-col">{children}</div>
+            <CommandMenuProvider>
+              <div className="relative z-10 flex min-h-full flex-col">{children}</div>
+            </CommandMenuProvider>
           </MotionConfig>
         </ThemeProvider>
       </body>

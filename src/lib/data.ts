@@ -3,7 +3,15 @@ export const profile = {
   role: "Full-Stack Developer & IT Professional",
   headline: "Engineering Scalable Systems & Immersive Digital Experiences",
   location: "Dasmariñas, Cavite, Philippines",
-  greeting: "Available for select engagements",
+  /** Full availability sentence — used for screen readers and the social preview image. */
+  greeting: "Open to internships, freelance, full-time roles & collaborations",
+  /** Short statuses the hero badge cycles through. */
+  availability: [
+    "Open to internships",
+    "Available for freelance",
+    "Open to full-time roles",
+    "Open to collaborations",
+  ],
   email: "mattarandia.07@gmail.com",
   avatar: "/assets/avatar/1X1-arandia.jpg",
   avatarCutout: "/assets/avatar/avatar-no-bg.png",
@@ -15,6 +23,8 @@ export const profile = {
     "I turn architecture into velocity.",
   ],
   bio: "I design and build full-stack products — mobile, web, and everything behind them — with a focus on clean architecture and interfaces that feel effortless.",
+  /** Phrases in `bio` set in italic accent where the bio is shown large. */
+  bioEmphasis: ["clean architecture", "effortless"],
   stats: [
     { label: "Projects", value: "4" },
     { label: "Certificates", value: "2" },
@@ -32,6 +42,8 @@ export interface EducationEntry {
   institution: string;
   degree: string;
   period: string;
+  /** Institution crest, shown beside the entry. */
+  logo?: string;
   description?: string;
   highlights?: string[];
 }
@@ -41,23 +53,11 @@ export const education: EducationEntry[] = [
     institution: "National University Dasmariñas",
     degree: "Bachelor of Science in Information Technology, Major in Mobile and Web Applications",
     period: "2023 — 2027",
+    logo: "/assets/icons/NU.png",
     description:
       "Focused on software testing, web development, and digital systems — with hands-on experience building database-driven systems and RFID/QR-based solutions.",
     highlights: ["Dean's List", "Best Capstone Paper and System"],
   },
-];
-
-export const techStack = [
-  "TypeScript",
-  "Next.js",
-  "Node.js",
-  "PostgreSQL",
-  "Redis",
-  "Docker",
-  "AWS",
-  "GraphQL",
-  "Python",
-  "Kubernetes",
 ];
 
 export const socials = [
@@ -80,14 +80,17 @@ export const skillGroups: { id: SkillGroupId; label: string; items: SkillItem[] 
     label: "Programming Languages",
     items: [
       { name: "JavaScript", icon: "javascript" },
+      { name: "TypeScript", icon: "typescript" },
+      { name: "Java", icon: "java" },
       { name: "Python", icon: "python" },
     ],
   },
   {
     id: "frontend",
-    label: "Frontend",
+    label: "Frontend & Mobile",
     items: [
       { name: "Next.js", icon: "nextjs" },
+      { name: "Flutter", icon: "flutter" },
       { name: "Tailwind CSS", icon: "tailwind" },
       { name: "HTML5", icon: "html5" },
       { name: "CSS3", icon: "css3" },
@@ -101,6 +104,9 @@ export const skillGroups: { id: SkillGroupId; label: string; items: SkillItem[] 
       { name: "Normalization", icon: "normalize" },
       { name: "CRUD Operations", icon: "crud" },
       { name: "PostgreSQL", icon: "postgresql" },
+      { name: "MySQL", icon: "mysql" },
+      { name: "Oracle", icon: "oracle" },
+      { name: "Supabase", icon: "supabase" },
     ],
   },
   {
@@ -109,6 +115,7 @@ export const skillGroups: { id: SkillGroupId; label: string; items: SkillItem[] 
     items: [
       { name: "Git", icon: "git" },
       { name: "Vercel", icon: "vercel" },
+      { name: "Netlify", icon: "netlify" },
     ],
   },
   {
@@ -202,6 +209,13 @@ export interface ProjectArchitecture {
   logic: string;
 }
 
+export interface ProjectShot {
+  src: string;
+  alt: string;
+  /** "mobile" shots render in a phone frame on the project page. */
+  kind: "desktop" | "mobile";
+}
+
 export interface Project {
   slug: string;
   name: string;
@@ -212,7 +226,9 @@ export interface Project {
   liveUrl?: string;
   codeUrl?: string;
   thumbnail?: string;
-  status: "production" | "in-progress" | "archived";
+  /** Extra screenshots for the project page, after the thumbnail. */
+  gallery?: ProjectShot[];
+  status: "production" | "completed" | "in-progress" | "archived";
   architecture?: ProjectArchitecture;
 }
 
@@ -242,9 +258,17 @@ export const projects: Project[] = [
     description:
       "Kalinga is a role-based, responsive web application designed for Bridges of Hope Imus to streamline facility management and resident recovery tracking by replacing manual, paper-based procedures with a centralized PostgreSQL and ReactJS platform. Built with four dedicated workspaces for Guardians, Nurses, Program Staff, and Administrators, the system unifies admission and discharge request workflows, care documentation, recovery ladder progress monitoring, and visitation scheduling into a single secure ecosystem. By providing role-specific access control, real-time updates, and comprehensive operational dashboards, Kalinga improves administrative efficiency, record reliability, and communication among care providers and resident families.",
     tags: ["Mobile", "Web"],
+    liveUrl: "https://bridgesofhope-delta.vercel.app/",
     codeUrl: "https://github.com/dwightangelodecena-cloud/-BridgesOfHope---Backup.git",
     thumbnail: "/assets/images/projects/KALINGA.png",
-    status: "in-progress",
+    gallery: [
+      {
+        src: "/assets/images/projects/KALINGAMOB.png",
+        alt: "KALINGA on mobile — guardian account consent flow",
+        kind: "mobile",
+      },
+    ],
+    status: "completed",
     architecture: {
       database: "Details coming soon — ER structure and schema pending write-up.",
       workflow: "Details coming soon — patient/session data flow pending write-up.",
@@ -276,7 +300,7 @@ export const projects: Project[] = [
     tags: ["Mobile", "Web", "Computer Vision"],
     codeUrl: "https://github.com/KManipis/SignA2ZRepository.git",
     thumbnail: "/assets/images/projects/SIGNA2Z.png",
-    status: "in-progress",
+    status: "completed",
     architecture: {
       database: "Details coming soon — schema for accounts, translation history, and learning modules pending write-up.",
       workflow: "Details coming soon — real-time ASL recognition and translation pipeline pending write-up.",

@@ -1,179 +1,159 @@
 "use client";
 
-import Image from "next/image";
+import { useSyncExternalStore } from "react";
+import { useTheme } from "next-themes";
 import { motion } from "framer-motion";
-import { BadgeCheck, Code2, FlaskConical, Rocket } from "lucide-react";
-import { TraitStack } from "@/components/ui/trait-stack";
+import { ArrowDownToLine, Code2, FlaskConical, Sparkles } from "lucide-react";
+import { ProfileCard } from "@/components/reactbits/profile-card";
+import { ScrollReveal } from "@/components/reactbits/scroll-reveal";
+import { scrollToTarget } from "@/lib/smooth-scroll";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
-import { useTypewriter } from "@/hooks/use-typewriter";
+import { TextReveal } from "@/components/ui/text-reveal";
+import { Eyebrow } from "@/components/ui/section-heading";
 import { profile } from "@/lib/data";
-import { EASE, fadeUp, viewport } from "@/lib/motion";
-import { blurPlaceholders } from "@/lib/blur-placeholders";
+import { fadeUp, staggerContainer, viewport } from "@/lib/motion";
 
-const CURRENTLY_ICONS = { code: Code2, flask: FlaskConical, rocket: Rocket } as const;
+const CURRENTLY_ICONS = { code: Code2, flask: FlaskConical, rocket: Sparkles } as const;
 
 export function About() {
-  const typedHeading = useTypewriter({
-    words: ["Problem Solver. Digital Craftsman."],
-    loop: false,
-    typingSpeed: 45,
-  });
+  const { resolvedTheme } = useTheme();
+  // The theme is only known in the browser; render the dark card on the server
+  // and the first client pass, then switch, so hydration matches.
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+  const isDark = !mounted || resolvedTheme !== "light";
 
   return (
-    <section id="about" className="relative mx-auto max-w-7xl px-6 py-28 sm:px-10">
-      <motion.p
-        initial="hidden"
-        whileInView="show"
-        viewport={viewport}
-        variants={fadeUp}
-        className="mb-4 font-mono text-sm uppercase tracking-[0.2em] text-primary"
-      >
-        About Me
-      </motion.p>
-      <motion.h2
-        initial="hidden"
-        whileInView="show"
-        viewport={viewport}
-        custom={0.05}
-        variants={fadeUp}
-        className="text-balance font-heading text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl"
-      >
-        {typedHeading}
-        <span
-          className="ml-1 inline-block h-[0.85em] w-[4px] translate-y-[4px] animate-pulse bg-primary"
-          aria-hidden
+    <section id="about" className="relative mx-auto max-w-7xl px-6 py-14 sm:px-10 sm:py-16 lg:py-20">
+      <motion.div initial="hidden" whileInView="show" viewport={viewport} variants={fadeUp} className="mb-6">
+        <Eyebrow index="05">About me</Eyebrow>
+      </motion.div>
+      <h2 className="max-w-4xl text-balance font-heading text-5xl font-medium leading-[0.95] tracking-[-0.05em] sm:text-7xl lg:text-[5.5rem]">
+        <TextReveal text="Problem solver." className="block" />{" "}
+        <TextReveal
+          text="Digital craftsman."
+          delay={0.15}
+          className="block"
+          wordClassName="font-serif font-normal italic tracking-[-0.02em] text-primary"
         />
-      </motion.h2>
+      </h2>
 
-      <div className="mt-16 grid gap-16 lg:grid-cols-[1.4fr_1fr] lg:items-center">
-        <div>
-          <motion.div
-            initial="hidden"
-            whileInView="show"
-            viewport={viewport}
-            custom={0.1}
-            variants={fadeUp}
-            className="flex flex-col gap-6 sm:flex-row sm:items-center"
-          >
-            <motion.div
-              initial={{ clipPath: "inset(0 100% 0 0)" }}
-              whileInView={{ clipPath: "inset(0 0% 0 0)" }}
-              viewport={viewport}
-              transition={{ duration: 0.9, ease: EASE, delay: 0.2 }}
-              className="relative h-24 w-24 shrink-0 overflow-hidden rounded-full border border-border sm:h-28 sm:w-28"
+      <div className="mt-14 grid grid-cols-1 gap-14 lg:grid-cols-12 lg:items-start">
+        <motion.div
+          initial="hidden"
+          whileInView="show"
+          viewport={viewport}
+          variants={staggerContainer}
+          className="lg:col-span-7"
+        >
+          <motion.div variants={fadeUp}>
+            <ScrollReveal
+              emphasize={profile.bioEmphasis}
+              className="max-w-2xl text-pretty font-editorial text-[1.75rem] font-light leading-[1.22] tracking-[-0.018em] text-foreground sm:text-[2.35rem]"
             >
-              <Image
-                src={profile.avatar}
-                alt={profile.name}
-                fill
-                sizes="112px"
-                className="object-cover"
-                placeholder="blur"
-                blurDataURL={blurPlaceholders.avatar}
-                priority
-              />
-            </motion.div>
-
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="font-heading text-xl font-semibold uppercase tracking-wide sm:text-2xl">
-                  {profile.name}
-                </h3>
-                <BadgeCheck className="h-5 w-5 text-primary" aria-label="Verified" />
-              </div>
-              <div className="mt-3 flex flex-wrap gap-x-10 gap-y-2">
-                {profile.stats.map((stat) => {
-                  const numericValue = Number(stat.value);
-                  return (
-                    <div key={stat.label}>
-                      <p className="font-mono text-sm uppercase tracking-[0.15em] text-muted-foreground">
-                        {stat.label}
-                      </p>
-                      <p className="font-heading text-2xl font-bold">
-                        {Number.isFinite(numericValue) ? (
-                          <AnimatedCounter value={numericValue} />
-                        ) : (
-                          stat.value
-                        )}
-                      </p>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+              {profile.bio}
+            </ScrollReveal>
           </motion.div>
 
-          <motion.p
-            initial="hidden"
-            whileInView="show"
-            viewport={viewport}
-            custom={0.15}
+          <motion.dl
             variants={fadeUp}
-            className="mt-10 max-w-2xl text-base text-muted-foreground sm:text-lg"
+            className="mt-12 grid grid-cols-3 divide-x divide-border border-y border-border"
           >
-            {profile.bio}
-          </motion.p>
+            {profile.stats.map((stat) => {
+              const numericValue = Number(stat.value);
+              return (
+                <div key={stat.label} className="flex flex-col-reverse px-4 py-6 first:pl-0 sm:px-6">
+                  <dt className="mt-2 font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground">
+                    {stat.label}
+                  </dt>
+                  <dd className="font-heading text-4xl font-medium tracking-[-0.05em] tabular sm:text-5xl">
+                    {Number.isFinite(numericValue) ? <AnimatedCounter value={numericValue} /> : stat.value}
+                  </dd>
+                </div>
+              );
+            })}
+          </motion.dl>
 
-          <motion.p
-            initial="hidden"
-            whileInView="show"
-            viewport={viewport}
-            custom={0.2}
-            variants={fadeUp}
-            className="mt-5 text-base text-muted-foreground sm:text-lg"
-          >
-            Want to know more about my experience?{" "}
+          <motion.p variants={fadeUp} className="mt-10 text-lg text-muted-foreground">
+            Want the full picture?{" "}
             <a
               href={profile.resumeUrl}
               download
-              className="group relative font-medium text-foreground cursor-pointer"
+              className="link-underline inline-flex items-center gap-1 pb-0.5 font-medium text-foreground"
             >
               Download my resume
-              <span className="absolute inset-x-0 -bottom-0.5 h-px origin-left scale-x-100 bg-foreground transition-transform duration-300 ease-out group-hover:scale-x-0" />
-              <span className="absolute inset-x-0 -bottom-0.5 h-px origin-right scale-x-0 bg-primary transition-transform duration-300 ease-out group-hover:scale-x-100" />
+              <ArrowDownToLine className="h-4 w-4" strokeWidth={1.5} aria-hidden />
             </a>
-            .
           </motion.p>
 
-          <motion.div
-            initial="hidden"
-            whileInView="show"
-            viewport={viewport}
-            custom={0.25}
-            variants={fadeUp}
-            className="mt-14"
-          >
-            <p className="mb-5 font-mono text-sm uppercase tracking-[0.15em] text-muted-foreground">
+          <motion.div variants={fadeUp} className="mt-14">
+            <p className="mb-5 font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground">
               Currently
             </p>
-            <div className="flex flex-nowrap gap-3 sm:gap-10">
+            <ul className="grid gap-3 sm:grid-cols-3">
               {profile.currently.map((item) => {
                 const Icon = CURRENTLY_ICONS[item.icon as keyof typeof CURRENTLY_ICONS];
                 return (
-                  <div key={item.label} className="flex min-w-0 flex-1 items-center gap-2 sm:flex-none sm:gap-4">
-                    <span className="glass flex h-9 w-9 shrink-0 items-center justify-center rounded-full sm:h-12 sm:w-12">
-                      <Icon className="h-4 w-4 text-primary sm:h-5 sm:w-5" strokeWidth={1.75} />
+                  <li
+                    key={item.label}
+                    className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4"
+                  >
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+                      <Icon className="h-4 w-4 text-primary" strokeWidth={1.5} />
                     </span>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-medium sm:text-base">{item.label}</p>
-                      <p className="truncate text-xs text-muted-foreground sm:text-sm">{item.detail}</p>
+                      <p className="text-sm font-medium">{item.label}</p>
+                      <p className="truncate text-xs text-muted-foreground">{item.detail}</p>
                     </div>
-                  </div>
+                  </li>
                 );
               })}
-            </div>
+            </ul>
           </motion.div>
-        </div>
+
+          <motion.div variants={fadeUp} className="mt-10">
+            <p className="mb-4 font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground">Traits</p>
+            <ul className="flex flex-wrap gap-2">
+              {profile.traits.map((trait, i) => (
+                <li
+                  key={trait}
+                  className="inline-flex items-center gap-2.5 rounded-full border border-border bg-card py-2 pl-3 pr-4 text-sm transition-colors duration-300 hover:border-foreground/30"
+                >
+                  <span className="font-mono text-[0.625rem] text-primary tabular">{String(i + 1).padStart(2, "0")}</span>
+                  {trait}
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+        </motion.div>
 
         <motion.div
           initial="hidden"
           whileInView="show"
           viewport={viewport}
-          custom={0.2}
+          custom={0.15}
           variants={fadeUp}
-          className="flex justify-center lg:justify-end"
+          className="flex justify-center lg:sticky lg:top-28 lg:col-span-5 lg:justify-end"
         >
-          <TraitStack traits={profile.traits} />
+          <ProfileCard
+            avatarUrl={profile.avatarCutout}
+            miniAvatarUrl={profile.avatar}
+            name={profile.name}
+            title={profile.role}
+            handle="mattoinks"
+            status="Open to work"
+            statusColor={isDark ? "#f26b3a" : "#c2410c"}
+            contactText="Contact"
+            onContactClick={() => scrollToTarget("#contact")}
+            theme={isDark ? "dark" : "light"}
+            radius={22}
+            holo={0.55}
+            glare={0.4}
+            tiltStrength={10}
+          />
         </motion.div>
       </div>
     </section>

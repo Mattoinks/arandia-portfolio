@@ -16,8 +16,8 @@ export default function Image() {
           flexDirection: "column",
           justifyContent: "space-between",
           padding: "80px",
-          background: "#09090b",
-          color: "#f4f4f5",
+          background: "#0c0c0b",
+          color: "#f2f1ec",
           fontFamily: "sans-serif",
         }}
       >
@@ -28,7 +28,7 @@ export default function Image() {
             fontWeight: 600,
             letterSpacing: 6,
             textTransform: "uppercase",
-            color: "#6366f1",
+            color: "#f26b3a",
           }}
         >
           Portfolio
@@ -38,7 +38,7 @@ export default function Image() {
           <div style={{ display: "flex", fontSize: 72, fontWeight: 700, lineHeight: 1.1 }}>
             {profile.name}
           </div>
-          <div style={{ display: "flex", fontSize: 32, color: "#a1a1aa" }}>{profile.role}</div>
+          <div style={{ display: "flex", fontSize: 32, color: "#9c9b93" }}>{profile.role}</div>
         </div>
 
         <div
@@ -47,7 +47,7 @@ export default function Image() {
             alignItems: "center",
             gap: 16,
             fontSize: 22,
-            color: "#a1a1aa",
+            color: "#9c9b93",
           }}
         >
           <div
@@ -56,7 +56,7 @@ export default function Image() {
               width: 10,
               height: 10,
               borderRadius: 999,
-              background: "#34d399",
+              background: "#f26b3a",
             }}
           />
           {profile.greeting}

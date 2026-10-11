@@ -1,44 +1,51 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
+/*
+  Palette — one warm neutral family plus a single signal accent.
+  Light mode reads as warm paper; dark mode as warm off-black. Never pure
+  #000/#fff, and no second accent: status/verified states reuse --primary.
+*/
 :root {
-  --background: #f8fafc;
-  --foreground: #0b1120;
-  --card: rgba(255, 255, 255, 0.72);
-  --card-foreground: #0b1120;
-  --card-border: rgba(15, 23, 42, 0.08);
-  --muted: #eef2f7;
-  --muted-foreground: #475569;
-  --primary: #4f46e5;
+  --background: #f6f5f1;
+  --foreground: #161614;
+  --card: rgba(255, 255, 255, 0.55);
+  --card-foreground: #161614;
+  --card-border: rgba(22, 22, 20, 0.09);
+  --muted: #ecebe5;
+  --muted-foreground: #5c5b54;
+  --primary: #c2410c;
   --primary-foreground: #ffffff;
-  --accent: #12853d;
-  --accent-foreground: #ffffff;
-  --border: rgba(15, 23, 42, 0.1);
-  --ring: #4f46e5;
-  --destructive: #dc2626;
-  --grid-line: rgba(15, 23, 42, 0.06);
-  --glow: rgba(79, 70, 229, 0.18);
-  --scrollbar-thumb: rgba(15, 23, 42, 0.2);
+  --accent: var(--primary);
+  --accent-foreground: var(--primary-foreground);
+  --border: rgba(22, 22, 20, 0.1);
+  --ring: #c2410c;
+  --destructive: #b91c1c;
+  --glow: rgba(194, 65, 12, 0.14);
+  --spot: rgba(194, 65, 12, 0.1);
+  --grain-opacity: 0.035;
+  --scrollbar-thumb: rgba(22, 22, 20, 0.2);
+  --shadow-tint: 30 20 10;
 }
 
 .dark {
-  --background: #09090b;
-  --foreground: #f4f4f5;
-  --card: rgba(255, 255, 255, 0.045);
-  --card-foreground: #f4f4f5;
-  --card-border: rgba(255, 255, 255, 0.09);
-  --muted: #131316;
-  --muted-foreground: #a1a1aa;
-  --primary: #6467f1;
-  --primary-foreground: #09090b;
-  --accent: #34d399;
-  --accent-foreground: #09090b;
-  --border: rgba(255, 255, 255, 0.09);
-  --ring: #6467f1;
+  --background: #0c0c0b;
+  --foreground: #f2f1ec;
+  --card: rgba(255, 255, 255, 0.028);
+  --card-foreground: #f2f1ec;
+  --card-border: rgba(255, 255, 255, 0.08);
+  --muted: #161614;
+  --muted-foreground: #9c9b93;
+  --primary: #f26b3a;
+  --primary-foreground: #0c0c0b;
+  --border: rgba(255, 255, 255, 0.085);
+  --ring: #f26b3a;
   --destructive: #f87171;
-  --grid-line: rgba(255, 255, 255, 0.06);
-  --glow: rgba(99, 102, 241, 0.28);
-  --scrollbar-thumb: rgba(255, 255, 255, 0.15);
+  --glow: rgba(242, 107, 58, 0.2);
+  --spot: rgba(242, 107, 58, 0.09);
+  --grain-opacity: 0.055;
+  --scrollbar-thumb: rgba(255, 255, 255, 0.14);
+  --shadow-tint: 0 0 0;
 }
 
 @theme inline {
@@ -56,122 +63,336 @@
   --color-border: var(--border);
   --color-ring: var(--ring);
   --color-destructive: var(--destructive);
-  --font-heading: var(--font-space-grotesk);
-  --font-sans: var(--font-dm-sans);
-  --font-mono: var(--font-jetbrains-mono);
+  --font-heading: var(--font-geist);
+  --font-sans: var(--font-geist);
+  --font-serif: var(--font-instrument-serif);
+  --font-editorial: var(--font-newsreader);
+  --font-mono: var(--font-geist-mono);
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
 }
 
 /*
   Typography scale — single source of truth for text roles across the site.
-  Every text element should match one of these roles (weight, tracking,
-  color, and responsive steps); only the surrounding spacing/layout classes
-  vary per component.
 
-  Role          Classes                                                                Used for
-  ------------- ---------------------------------------------------------------------- --------------------------------------------
-  Display       font-heading text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl Section-level titles: Display statements (About, Contact) and H2 section headings (SectionHeading component)
-  H1 (page)     font-heading text-3xl font-semibold tracking-tight sm:text-5xl         Hero name — the document's one <h1>
-  H3 (card)     font-heading text-2xl font-semibold sm:text-3xl                        Card/content titles (project name, trait)
-  Eyebrow       font-mono text-sm uppercase tracking-[0.2em] text-primary              Section intro labels ("About Me", "Contact")
-  Label         font-mono text-sm uppercase tracking-[0.15em] text-muted-foreground    Field/meta labels (stats, captions, form labels)
-  Body-lg       text-base text-muted-foreground sm:text-lg                            Supporting paragraphs, descriptions
-  Body          text-sm text-muted-foreground                                         Secondary copy, card descriptions
-  Caption       text-xs text-muted-foreground                                         UI chrome: pills, badges, footer, tags
+  Role          Classes                                                                      Used for
+  ------------- ---------------------------------------------------------------------------- -----------------------------------
+  Display       font-heading text-5xl font-semibold tracking-[-0.045em] sm:text-7xl          Section titles (SectionHeading, About, Contact)
+  H1            font-heading text-[clamp(2.75rem,5.6vw,5.5rem)] font-semibold tracking-tight Hero name — the document's one <h1>
+  H3 (card)     font-heading text-2xl font-semibold tracking-[-0.03em] sm:text-3xl          Card/content titles
+  Editorial     font-editorial font-light tracking-[-0.02em]                                  Long-form statements (About bio)
+  Accent        font-serif italic font-normal                                                Emphasis words inside display/H3 text
+  Eyebrow       font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground          Section intro labels (paired with an index)
+  Label         font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground      Meta labels (stats, captions)
+  Body-lg       text-lg leading-relaxed text-muted-foreground text-pretty                    Supporting paragraphs
+  Body          text-[15px] leading-relaxed text-muted-foreground                            Card descriptions
+  Caption       text-xs text-muted-foreground                                                Pills, tags, footer
 */
 
 * {
   border-color: var(--border);
 }
 
+/* Fluid scale: the design is composed at 1280px wide. Above that, the root size
+   grows with the viewport so every rem-based size (type, spacing, columns,
+   navbar) scales together — a 1920px monitor shows the same composition as a
+   1280px laptop instead of a small island in empty margins. Capped for ultra-wides.
+   Media queries are unaffected (they resolve rem against the browser default). */
+@media (min-width: 1280px) {
+  html {
+    font-size: clamp(16px, 1.25vw, 22px);
+  }
+}
+
+/* The navbar shouldn't grow as much as the page on big monitors: counter part of
+   the fluid scale so it reads like a toolbar, not a banner. */
+@media (min-width: 1440px) {
+  .site-nav {
+    zoom: 0.88;
+  }
+}
+@media (min-width: 1680px) {
+  .site-nav {
+    zoom: 0.8;
+  }
+}
+
 html {
   scroll-behavior: smooth;
+  /* Mobile: no grey flash on tap, no landscape font inflation. */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Controls fire on tap without the double-tap-zoom wait, and long-press
+   doesn't select their labels. Content text stays selectable. */
+a,
+button,
+[role="button"],
+[role="tab"],
+[role="option"] {
+  touch-action: manipulation;
+}
+button,
+[role="button"],
+[role="tab"],
+[role="option"] {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* iOS zooms into any input under 16px and never zooms back out. */
+input,
+textarea,
+select {
+  font-size: max(16px, 1em);
+}
+
+/* Lenis (see SmoothScroll.tsx) drives scrolling itself — native smoothing would fight it. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+html.lenis {
+  scroll-behavior: auto;
+}
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+.lenis [data-lenis-prevent] {
+  overscroll-behavior: contain;
 }
 
 :focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 3px;
-  border-radius: 2px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
+  border-radius: 4px;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
-  transition:
-    background-color 0.5s ease,
-    color 0.5s ease;
+  font-feature-settings: "ss01", "cv11";
 }
 
-/* Subtle full-page grid overlay, masked so it fades toward the edges */
-.grid-overlay {
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Keycap for keyboard hints (⌘K etc.) */
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  padding: 0 0.35rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--foreground) 4%, transparent);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  line-height: 1;
+  color: var(--muted-foreground);
+  box-shadow: inset 0 -1px 0 var(--border);
+}
+
+/* Label roll: the label slides up and an identical copy rises in from below. */
+.roll {
+  display: inline-grid;
+  overflow: hidden;
+}
+.roll > span {
+  grid-area: 1 / 1;
+  transition: transform 0.5s var(--ease-out-strong);
+}
+.roll > span:last-child {
+  transform: translateY(110%);
+}
+@media (hover: hover) and (pointer: fine) {
+  .group\/btn:hover .roll > span:first-child {
+    transform: translateY(-110%);
+  }
+  .group\/btn:hover .roll > span:last-child {
+    transform: translateY(0);
+  }
+}
+
+/* ---------- Ambient backdrop: one warm glow + film grain (see Backdrop.tsx) ---------- */
+
+.backdrop-glow {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background-image:
-    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
-  background-size: 64px 64px;
-  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
-  transition: background-image 0.5s ease;
+  background:
+    radial-gradient(60% 50% at 85% -5%, var(--glow), transparent 70%),
+    radial-gradient(40% 35% at 0% 10%, color-mix(in srgb, var(--glow) 45%, transparent), transparent 70%);
 }
 
-/* Ambient glow that follows the cursor on fine-pointer devices (see GridOverlay.tsx) */
-.grid-spotlight {
+.backdrop-grain {
   position: fixed;
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  opacity: 0;
-  background: radial-gradient(500px circle at var(--spot-x, 50%) var(--spot-y, 50%), var(--glow), transparent 70%);
-  transition: opacity 0.4s ease;
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .grid-spotlight {
-    display: none;
+/* ---------- Surfaces ---------- */
+
+/* Quiet card: hairline border + faint fill, with a cursor-tracked spotlight
+   on the border and fill (see Surface.tsx, which sets --mx / --my). */
+.surface {
+  position: relative;
+  isolation: isolate;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.04),
+    0 1px 2px rgb(var(--shadow-tint) / 0.04),
+    0 12px 32px -16px rgb(var(--shadow-tint) / 0.18);
+  transition: border-color 0.3s ease;
+}
+
+/* Spotlight layers are empty leaf spans (see Surface.tsx). The pointer position
+   is written to their own --mx/--my, never to the card: a custom property set on
+   the card would inherit into every descendant and restyle them all per move. */
+.surface-fill,
+.surface-ring {
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.surface-fill {
+  z-index: -1;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), var(--spot), transparent 65%);
+}
+
+.surface-ring {
+  padding: 1px;
+  background: radial-gradient(280px circle at var(--mx, 50%) var(--my, 50%), var(--primary), transparent 70%);
+  /* Ring mask: subtract the content box from the border box, leaving the 1px edge. */
+  mask-image: linear-gradient(#000, #000), linear-gradient(#000, #000);
+  mask-clip: content-box, border-box;
+  mask-origin: content-box, border-box;
+  mask-composite: exclude;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .surface:hover > .surface-fill,
+  .surface:hover > .surface-ring {
+    opacity: 1;
   }
 }
 
-/* Glassmorphic surface */
+/* Frosted chrome (navbar, mobile menu, modal) — pair with `backdrop-blur-xl backdrop-saturate-150` */
 .glass {
-  background: var(--card);
+  background: color-mix(in srgb, var(--background) 72%, transparent);
   border: 1px solid var(--card-border);
-  backdrop-filter: blur(16px) saturate(140%);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
-  transition:
-    background-color 0.5s ease,
-    border-color 0.5s ease,
-    box-shadow 0.3s ease,
-    transform 0.3s ease;
+  /* Blur comes from Tailwind's backdrop-blur/backdrop-saturate utilities at the
+     call site — a hand-written backdrop-filter here gets dropped by the build. */
 }
 
-.glow-border {
-  box-shadow:
-    0 0 0 1px var(--card-border),
-    0 8px 30px -12px var(--glow);
+/* Pressable feedback — every clickable thing gets a subtle physical press. */
+.press {
+  transition: transform 160ms var(--ease-out-strong);
+}
+.press:active {
+  transform: scale(0.97);
 }
 
-/* Custom cursor (fine-pointer devices only, see CustomCursor.tsx) */
-.custom-cursor-active,
-.custom-cursor-active a,
-.custom-cursor-active button {
-  cursor: none;
+/* Two-layer underline: the resting line slides out as the accent line slides in. */
+.link-underline {
+  position: relative;
+  background-image: linear-gradient(currentColor, currentColor), linear-gradient(var(--primary), var(--primary));
+  background-size:
+    100% 1px,
+    0% 1px;
+  background-position:
+    100% 100%,
+    0% 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.4s var(--ease-out-strong);
+}
+@media (hover: hover) and (pointer: fine) {
+  .link-underline:hover {
+    background-size:
+      0% 1px,
+      100% 1px;
+  }
+}
+
+/* ---------- Marquees (CSS, so they stay smooth off the main thread) ---------- */
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee var(--marquee-duration, 40s) linear infinite;
+}
+.marquee-pause:hover .marquee-track {
+  animation-play-state: paused;
+}
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.fade-x {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+}
+
+/* Scroll cue line — a short highlight travelling down a hairline. */
+.scroll-cue {
+  position: relative;
+  overflow: hidden;
+}
+.scroll-cue::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--foreground);
+  transform: translateY(-100%);
+  animation: scroll-cue 2.2s var(--ease-in-out-strong) infinite;
+}
+@keyframes scroll-cue {
+  0% {
+    transform: translateY(-100%);
+  }
+  60%,
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+.live-dot {
+  position: relative;
+}
+.live-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: inherit;
+  animation: live-ping 2s var(--ease-out-strong) infinite;
+}
+@keyframes live-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
 }
 
 ::selection {
@@ -188,10 +409,7 @@ body {
 ::-webkit-scrollbar-thumb {
   background: var(--scrollbar-thumb);
   border-radius: 9999px;
-}
-
-.text-balance {
-  text-wrap: balance;
+  border: 2px solid var(--background);
 }
 
 /* Circular reveal for the dark/light toggle (see ThemeToggle.tsx), driven by
@@ -204,7 +422,7 @@ body {
 }
 
 ::view-transition-new(root) {
-  animation: theme-reveal 0.6s ease-in-out;
+  animation: theme-reveal 0.65s var(--ease-in-out-strong);
 }
 
 @keyframes theme-reveal {
@@ -217,6 +435,17 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
   ::view-transition-old(root),
   ::view-transition-new(root) {
     animation: none !important;
