@@ -2,19 +2,19 @@
 
 /*
   Adapted from React Bits — SplitText (MIT, https://reactbits.dev).
-  Changes: honours prefers-reduced-motion, kills only its own ScrollTrigger,
+  Changes: honours prefers-reduced-motion, IntersectionObserver instead of
+  ScrollTrigger (no per-frame scroll work),
   defaults tuned to the site's expo-out rhythm, and a masked line wrapper so
   characters rise out of a clip instead of fading in mid-air.
 */
 
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText as GSAPSplitText } from "gsap/SplitText";
 import { useGSAP } from "@gsap/react";
 import { cn } from "@/lib/utils";
 
-gsap.registerPlugin(ScrollTrigger, GSAPSplitText, useGSAP);
+gsap.registerPlugin(GSAPSplitText, useGSAP);
 
 interface SplitTextProps {
   text: string;
@@ -75,17 +75,37 @@ export function SplitText({
       });
       const targets = splitType.includes("chars") ? split.chars : splitType === "lines" ? split.lines : split.words;
 
-      gsap.fromTo(targets, from, {
-        ...to,
-        duration,
-        ease,
-        delay: startDelay,
-        stagger: delay / 1000,
-        force3D: true,
-        scrollTrigger: trigger === "scroll" ? { trigger: el, start: "top 88%", once: true } : undefined,
-      });
+      const play = () =>
+        gsap.fromTo(targets, from, {
+          ...to,
+          duration,
+          ease,
+          delay: startDelay,
+          stagger: delay / 1000,
+          force3D: true,
+        });
 
-      return () => split.revert();
+      // Scroll trigger via IntersectionObserver (no per-frame scroll listener).
+      let io: IntersectionObserver | undefined;
+      if (trigger === "scroll") {
+        gsap.set(targets, from);
+        io = new IntersectionObserver(
+          ([entry]) => {
+            if (!entry.isIntersecting) return;
+            io?.disconnect();
+            play();
+          },
+          { rootMargin: "0px 0px -12% 0px" },
+        );
+        io.observe(el);
+      } else {
+        play();
+      }
+
+      return () => {
+        io?.disconnect();
+        split.revert();
+      };
     },
     { dependencies: [text, fontsReady], scope: ref },
   );

@@ -1,12 +1,34 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useInView } from "framer-motion";
 import { ArrowUpRight, BadgeCheck } from "lucide-react";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Surface } from "@/components/ui/surface";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
 import { certifications } from "@/lib/data";
-import { EASE, fadeUp, staggerContainer, viewport } from "@/lib/motion";
+import { fadeUp, staggerContainer, viewport } from "@/lib/motion";
+
+function ScoreBar({ score, maxScore }: { score: number; maxScore: number }) {
+  // Observe the track, not the fill: a fill at scaleX(0) has zero width and
+  // would never count as "in view", leaving the bar stuck empty.
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { amount: 0.6 });
+  const pct = score / maxScore;
+  return (
+    <div
+      ref={ref}
+      className="mt-4 h-1 overflow-hidden rounded-full bg-foreground/[0.07]"
+      role="img"
+      aria-label={`Score ${score} out of ${maxScore}`}
+    >
+      <div
+        className="h-full origin-left rounded-full bg-primary transition-transform duration-[1400ms] ease-out-strong"
+        style={{ transform: `scaleX(${inView ? pct : 0})`, transitionDelay: inView ? "200ms" : "0ms" }}
+      />
+    </div>
+  );
+}
 
 export function Certifications() {
   return (
@@ -57,19 +79,7 @@ export function Certifications() {
                       {Math.round(pct * 100)}%
                     </span>
                   </div>
-                  <div
-                    className="mt-4 h-1 overflow-hidden rounded-full bg-foreground/[0.07]"
-                    role="img"
-                    aria-label={`Score ${cert.score} out of ${cert.maxScore}`}
-                  >
-                    <motion.div
-                      initial={{ scaleX: 0 }}
-                      whileInView={{ scaleX: pct }}
-                      viewport={viewport}
-                      transition={{ duration: 1.4, delay: 0.2, ease: EASE }}
-                      className="h-full origin-left rounded-full bg-primary"
-                    />
-                  </div>
+                  <ScoreBar score={cert.score} maxScore={cert.maxScore} />
                 </div>
 
                 <dl className="mt-10 grid grid-cols-2 gap-6 border-t border-border pt-6">

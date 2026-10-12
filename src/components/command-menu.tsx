@@ -207,7 +207,7 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
         aria-label="Command menu"
         onMouseDown={(e) => e.stopPropagation()}
         onKeyDown={onKeyDown}
-        className="glass w-full max-w-lg overflow-hidden rounded-2xl shadow-[0_32px_80px_-24px_rgb(var(--shadow-tint)/0.6)] backdrop-blur-xl backdrop-saturate-150"
+        className="glass w-full max-w-lg overflow-hidden rounded-2xl shadow-[0_32px_80px_-24px_rgb(var(--shadow-tint)/0.6)] backdrop-blur-md"
       >
         <div className="flex items-center gap-3 border-b border-border px-4">
           <Search className="h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={1.5} aria-hidden />

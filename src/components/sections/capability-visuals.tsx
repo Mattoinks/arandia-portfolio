@@ -1,7 +1,10 @@
 "use client";
 
 import { motion, type Variants } from "framer-motion";
-import { EASE, viewport } from "@/lib/motion";
+import { EASE } from "@/lib/motion";
+
+// Decorative and intricate: reveal once rather than replaying on every scroll pass.
+const viewportOnce = { once: true, margin: "0px 0px -10% 0px" } as const;
 
 /*
   Decorative mini-illustrations for the two capability cards. Pure markup +
@@ -15,8 +18,8 @@ const stagger = (delayChildren = 0.2, staggerChildren = 0.07): Variants => ({
 });
 
 const rise: Variants = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE } },
+  hidden: { opacity: 0, transform: "translateY(12px)" },
+  show: { opacity: 1, transform: "translateY(0px)", transition: { duration: 0.7, ease: EASE } },
 };
 
 const TABLES = [
@@ -42,9 +45,9 @@ export function WebSystemsVisual() {
       aria-hidden
       initial="hidden"
       whileInView="show"
-      viewport={viewport}
+      viewport={viewportOnce}
       variants={stagger(0.1, 0.05)}
-      className="flex flex-1 flex-col overflow-hidden rounded-t-2xl border border-b-0 border-border bg-background/80 shadow-[0_-12px_40px_-24px_rgb(var(--shadow-tint)/0.5)]"
+      className="flex flex-1 flex-col overflow-hidden rounded-t-2xl border border-b-0 border-border bg-background/80 shadow-[0_-8px_24px_-18px_rgb(var(--shadow-tint)/0.5)]"
     >
       {/* Chrome */}
       <div className="flex items-center gap-3 border-b border-border px-4 py-2.5">
@@ -148,7 +151,7 @@ export function MobileAppVisual() {
       aria-hidden
       initial="hidden"
       whileInView="show"
-      viewport={viewport}
+      viewport={viewportOnce}
       variants={stagger(0.25, 0.08)}
       className="flex justify-center"
     >
@@ -159,7 +162,7 @@ export function MobileAppVisual() {
         }}
         className="w-[14.25rem] transition-transform duration-500 ease-out-strong group-hover/cap:-translate-y-2"
       >
-        <div className="rounded-t-[2.4rem] border-[6px] border-b-0 border-foreground/10 bg-background p-3 pb-0 shadow-[0_-16px_48px_-24px_rgb(var(--shadow-tint)/0.6)]">
+        <div className="rounded-t-[2.4rem] border-[6px] border-b-0 border-foreground/10 bg-background p-3 pb-0 shadow-[0_-8px_24px_-18px_rgb(var(--shadow-tint)/0.6)]">
           {/* Status bar + island */}
           <div className="relative flex items-center justify-between px-2 pb-3 pt-1 font-mono text-[0.5625rem] text-foreground tabular">
             <span>9:41</span>

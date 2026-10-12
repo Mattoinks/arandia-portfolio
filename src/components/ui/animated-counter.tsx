@@ -12,7 +12,9 @@ interface AnimatedCounterProps {
 /** Counts up to `value` every time it scrolls into view, resetting to 0 when it scrolls back out. */
 export function AnimatedCounter({ value, className, suffix = "" }: AnimatedCounterProps) {
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: false, margin: "-80px" });
+  // Vertical-only margin: a horizontal inset would make numbers near the page edge
+  // "never visible" (the Projects stat sat inside it and stayed at 0).
+  const inView = useInView(ref, { once: false, margin: "0px 0px -10% 0px" });
   const shouldReduceMotion = useReducedMotion();
   const motionValue = useMotionValue(0);
   const spring = useSpring(motionValue, { stiffness: 85, damping: 22 });

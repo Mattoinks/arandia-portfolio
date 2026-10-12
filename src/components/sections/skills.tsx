@@ -162,9 +162,10 @@ const tileStagger: Variants = {
   show: { transition: { staggerChildren: 0.045, delayChildren: 0.15 } },
 };
 
+// Opacity + translate only: scaling a tile re-rasterizes its shadow every frame.
 const tileVariants: Variants = {
-  hidden: { opacity: 0, y: 14, scale: 0.9 },
-  show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", duration: 0.6, bounce: 0.25 } },
+  hidden: { opacity: 0, transform: "translateY(12px)" },
+  show: { opacity: 1, transform: "translateY(0px)", transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
 };
 
 function ToolTile({ item }: { item: SkillItem }) {
@@ -172,7 +173,7 @@ function ToolTile({ item }: { item: SkillItem }) {
   const padded = PADDED_SKILL_ICONS.has(item.icon);
   return (
     <motion.li variants={tileVariants} className="group min-w-0 sm:w-[3.75rem]">
-      <div className="relative aspect-square overflow-hidden rounded-[1.125rem] bg-white shadow-[0_1px_2px_rgb(0_0_0/0.08),0_10px_24px_-14px_rgb(var(--shadow-tint)/0.5)] ring-1 ring-black/[0.06] transition-[transform,box-shadow] duration-300 ease-out-strong group-hover:-translate-y-1 group-hover:shadow-[0_2px_4px_rgb(0_0_0/0.08),0_16px_30px_-12px_var(--glow)] dark:ring-white/10">
+      <div className="relative aspect-square overflow-hidden rounded-[1.125rem] bg-white shadow-[0_1px_2px_rgb(0_0_0/0.1),0_6px_12px_-8px_rgb(var(--shadow-tint)/0.5)] ring-1 ring-black/[0.06] transition-transform duration-300 ease-out-strong group-hover:-translate-y-1 dark:ring-white/10">
         {src && (
           <Image
             src={src}

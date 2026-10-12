@@ -104,15 +104,17 @@
   }
 }
 
-/* The navbar shouldn't grow as much as the page on big monitors: counter part of
+/* The navbar (and the hero's availability line) shouldn't grow as much as the page on big monitors: counter part of
    the fluid scale so it reads like a toolbar, not a banner. */
 @media (min-width: 1440px) {
-  .site-nav {
+  .site-nav,
+  .hero-meta {
     zoom: 0.88;
   }
 }
 @media (min-width: 1680px) {
-  .site-nav {
+  .site-nav,
+  .hero-meta {
     zoom: 0.8;
   }
 }
@@ -334,6 +336,7 @@ body {
 .marquee-track {
   display: flex;
   width: max-content;
+  will-change: transform;
   animation: marquee var(--marquee-duration, 40s) linear infinite;
 }
 .marquee-pause:hover .marquee-track {

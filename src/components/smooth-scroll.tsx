@@ -2,8 +2,6 @@
 
 import { useEffect } from "react";
 import Lenis from "lenis";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { scrollToTarget, setLenis } from "@/lib/smooth-scroll";
 
 /**
@@ -19,9 +17,6 @@ export function SmoothScroll() {
     if (!reduce) {
       lenis = new Lenis({ autoRaf: true, lerp: 0.1, wheelMultiplier: 1 });
       setLenis(lenis);
-      // Keep GSAP ScrollTrigger (React Bits components) in lockstep with Lenis.
-      gsap.registerPlugin(ScrollTrigger);
-      lenis.on("scroll", ScrollTrigger.update);
     }
 
     const onClick = (e: MouseEvent) => {
@@ -46,7 +41,6 @@ export function SmoothScroll() {
     return () => {
       document.removeEventListener("click", onClick);
       if (lenis) {
-        lenis.off("scroll", ScrollTrigger.update);
         setLenis(null);
         lenis.destroy();
       }

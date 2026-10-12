@@ -6,13 +6,17 @@ export const EASE = [0.16, 1, 0.3, 1] as const;
 /** Strong ease-out for small UI responses (menus, dialogs, tabs). */
 export const EASE_OUT = [0.23, 1, 0.32, 1] as const;
 
-/** Shared scroll-reveal used across every section for one consistent entrance rhythm. */
+/**
+ * Shared scroll-reveal used across every section for one consistent entrance rhythm.
+ * Uses full `transform` strings (not the x/y shorthands) so Motion hands the
+ * animation to the compositor via WAAPI — the card is moved as an already-painted
+ * layer instead of being repainted every frame while the page scrolls.
+ */
 export const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 28, filter: "blur(4px)" },
+  hidden: { opacity: 0, transform: "translateY(28px)" },
   show: (delay: number = 0) => ({
     opacity: 1,
-    y: 0,
-    filter: "blur(0px)",
+    transform: "translateY(0px)",
     transition: { duration: 0.9, delay, ease: EASE },
   }),
 };

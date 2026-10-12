@@ -2,100 +2,106 @@
 
 /*
   Adapted from React Bits — ScrollReveal (MIT, https://reactbits.dev).
-  Changes: scoped cleanup via gsap.context (the original killed every
-  ScrollTrigger on the page), a valid <p> wrapper instead of <h2><p>, screen
-  readers get the intact sentence, and reduced-motion users see plain text.
+  Changes: driven by framer-motion's useScroll instead of GSAP ScrollTrigger,
+  so no scroll listener reads layout every frame (ScrollTrigger's did, synced
+  to Lenis, and it was the main scroll-jank source). Opacity + a slight
+  settle-in rotation only — both compositor-friendly. Screen readers get the
+  intact sentence; phrases in `emphasize` get the accent style.
 */
 
-import { useEffect, useMemo, useRef } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useMemo, useRef } from "react";
+import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
 import { cn } from "@/lib/utils";
-
-gsap.registerPlugin(ScrollTrigger);
 
 interface ScrollRevealProps {
   children: string;
   className?: string;
-  enableBlur?: boolean;
   baseOpacity?: number;
   baseRotation?: number;
-  blurStrength?: number;
   /** Phrases (exact substrings of the text) to set in the italic accent style. */
   emphasize?: string[];
   emphasisClassName?: string;
 }
 
+function Word({
+  children,
+  progress,
+  range,
+  baseOpacity,
+  className,
+}: {
+  children: string;
+  progress: MotionValue<number>;
+  range: [number, number];
+  baseOpacity: number;
+  className?: string;
+}) {
+  const opacity = useTransform(progress, range, [baseOpacity, 1]);
+  return (
+    <motion.span style={{ opacity }} className={cn("inline-block", className)}>
+      {children}
+    </motion.span>
+  );
+}
+
 export function ScrollReveal({
   children,
   className,
-  enableBlur = true,
   baseOpacity = 0.15,
   baseRotation = 2,
-  blurStrength = 4,
   emphasize = [],
   emphasisClassName = "italic text-primary",
 }: ScrollRevealProps) {
   const ref = useRef<HTMLParagraphElement>(null);
+  const reduce = useReducedMotion();
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 0.85", "end 0.55"] });
+  const rotate = useTransform(scrollYProgress, [0, 1], [reduce ? 0 : baseRotation, 0]);
 
-  const words = useMemo(() => {
-    // Character ranges covered by each emphasized phrase.
+  const tokens = useMemo(() => {
     const ranges = emphasize.flatMap((phrase) => {
       const start = children.indexOf(phrase);
       return start === -1 ? [] : [[start, start + phrase.length] as const];
     });
-    const tokens = children.split(/(\s+)/);
-    const starts = tokens.reduce<number[]>((acc, _, i) => [...acc, i === 0 ? 0 : acc[i - 1] + tokens[i - 1].length], []);
-    return tokens.map((word, i) => {
-      const start = starts[i];
-      if (/^\s+$/.test(word)) return word;
-      const emphasized = ranges.some(([a, b]) => start >= a && start < b);
-      return (
-        <span key={i} className={cn("rb-word inline-block", emphasized && emphasisClassName)}>
-          {word}
-        </span>
-      );
+    const parts = children.split(/(\s+)/);
+    const starts = parts.reduce<number[]>((acc, _, i) => [...acc, i === 0 ? 0 : acc[i - 1] + parts[i - 1].length], []);
+    const words = parts.filter((w) => !/^\s+$/.test(w)).length;
+    let wordIndex = 0;
+    return parts.map((part, i) => {
+      if (/^\s+$/.test(part)) return { kind: "space" as const, text: part };
+      const idx = wordIndex++;
+      return {
+        kind: "word" as const,
+        text: part,
+        range: [idx / words, (idx + 1) / words] as [number, number],
+        emphasized: ranges.some(([a, b]) => starts[i] >= a && starts[i] < b),
+      };
     });
-  }, [children, emphasize, emphasisClassName]);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    const ctx = gsap.context(() => {
-      const wordEls = el.querySelectorAll<HTMLElement>(".rb-word");
-
-      gsap.fromTo(
-        el,
-        { transformOrigin: "0% 50%", rotate: baseRotation },
-        {
-          ease: "none",
-          rotate: 0,
-          scrollTrigger: { trigger: el, start: "top bottom", end: "bottom 60%", scrub: true },
-        },
-      );
-
-      gsap.fromTo(
-        wordEls,
-        { opacity: baseOpacity, ...(enableBlur && { filter: `blur(${blurStrength}px)` }) },
-        {
-          ease: "none",
-          opacity: 1,
-          ...(enableBlur && { filter: "blur(0px)" }),
-          stagger: 0.05,
-          scrollTrigger: { trigger: el, start: "top 85%", end: "bottom 55%", scrub: true },
-        },
-      );
-    }, el);
-
-    return () => ctx.revert();
-  }, [enableBlur, baseOpacity, baseRotation, blurStrength]);
+  }, [children, emphasize]);
 
   return (
-    <p ref={ref} className={cn("relative", className)}>
+    <motion.p ref={ref} style={{ rotate, transformOrigin: "0% 50%" }} className={cn("relative", className)}>
       <span className="sr-only">{children}</span>
-      <span aria-hidden>{words}</span>
-    </p>
+      <span aria-hidden>
+        {tokens.map((t, i) =>
+          t.kind === "space" ? (
+            t.text
+          ) : reduce ? (
+            <span key={i} className={cn(t.emphasized && emphasisClassName)}>
+              {t.text}
+            </span>
+          ) : (
+            <Word
+              key={i}
+              progress={scrollYProgress}
+              range={t.range}
+              baseOpacity={baseOpacity}
+              className={t.emphasized ? emphasisClassName : undefined}
+            >
+              {t.text}
+            </Word>
+          ),
+        )}
+      </span>
+    </motion.p>
   );
 }

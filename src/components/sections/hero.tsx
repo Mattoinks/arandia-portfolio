@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { AnimatePresence, motion, useInView, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { ArrowDownRight, ArrowUpRight, MapPin } from "lucide-react";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { SplitText } from "@/components/reactbits/split-text";
@@ -21,13 +21,21 @@ const rise = (delay: number) => ({
 
 function NameMarquee() {
   const label = profile.name.toUpperCase();
+  const ref = useRef<HTMLDivElement>(null);
+  // A permanently running, very wide text layer is pure cost once scrolled past.
+  const inView = useInView(ref, { margin: "100px 0px" });
   return (
     <div
+      ref={ref}
       aria-hidden
       className="pointer-events-none absolute inset-x-0 bottom-[22%] overflow-hidden lg:bottom-auto lg:top-1/2 lg:-translate-y-1/2"
     >
-      <div className="marquee-track" style={{ "--marquee-duration": "60s" } as React.CSSProperties}>
-        {Array.from({ length: 4 }).map((_, i) => (
+      <div
+        className="marquee-track"
+        style={{ "--marquee-duration": "60s", animationPlayState: inView ? "running" : "paused" } as React.CSSProperties}
+      >
+        {/* Two copies are all a -50% loop needs. */}
+        {Array.from({ length: 2 }).map((_, i) => (
           <span
             key={i}
             className="mx-[3vw] whitespace-nowrap font-heading text-[18vw] font-medium leading-none tracking-[-0.05em] text-transparent"
@@ -182,7 +190,7 @@ export function Hero() {
           style={{ y: copyY }}
           className="relative z-20 flex flex-col justify-center pt-10 pb-6 lg:col-span-7 lg:pb-[4svh] lg:pt-0"
         >
-          <motion.div {...rise(0.1)} className="flex flex-wrap items-center gap-x-5 gap-y-2">
+          <motion.div {...rise(0.1)} className="hero-meta flex flex-wrap items-center gap-x-5 gap-y-2">
             <AvailabilityBadge />
             <span className="inline-flex items-center gap-1.5 font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground">
               <MapPin className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden />
@@ -244,7 +252,7 @@ export function Hero() {
           />
           <motion.div
             style={{ y: photoY }}
-            className="absolute inset-0 [mask-image:linear-gradient(to_bottom,#000_78%,transparent)]"
+            className="absolute inset-0 will-change-transform [mask-image:linear-gradient(to_bottom,#000_78%,transparent)]"
           >
             <Image
               src={profile.avatarCutout}

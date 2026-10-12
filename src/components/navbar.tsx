@@ -48,7 +48,6 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [activeHash, setActiveHash] = useState("#top");
-  const sectionsRef = useRef<HTMLElement[]>([]);
   const { scrollY } = useScroll();
   const { open: openCommandMenu } = useCommandMenu();
   const time = useLocalTime();
@@ -58,10 +57,20 @@ export function Navbar() {
     () => true,
   );
 
+  // Section tops are cached (document coordinates) and refreshed only when the
+  // page resizes, so scrolling never forces a layout read.
+  const sectionTopsRef = useRef<{ hash: string; top: number }[]>([]);
   useEffect(() => {
-    sectionsRef.current = NAV_LINKS.map((l) => document.querySelector<HTMLElement>(l.href)).filter(
-      (el): el is HTMLElement => !!el,
-    );
+    const measure = () => {
+      sectionTopsRef.current = NAV_LINKS.flatMap((l) => {
+        const el = document.querySelector<HTMLElement>(l.href);
+        return el ? [{ hash: l.href, top: el.getBoundingClientRect().top + window.scrollY }] : [];
+      });
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(document.body);
+    return () => ro.disconnect();
   }, []);
 
   useMotionValueEvent(scrollY, "change", (y) => {
@@ -75,11 +84,11 @@ export function Navbar() {
       if (y < prev - 2) setHidden(false);
     }
 
-    let current: HTMLElement | null = null;
-    for (const section of sectionsRef.current) {
-      if (section.getBoundingClientRect().top <= TRIGGER_OFFSET) current = section;
+    let current = "#top";
+    for (const section of sectionTopsRef.current) {
+      if (section.top - y <= TRIGGER_OFFSET) current = section.hash;
     }
-    setActiveHash(current ? `#${current.id}` : "#top");
+    setActiveHash(current);
   });
 
   useEffect(() => {
@@ -115,7 +124,7 @@ export function Navbar() {
           className={cn(
             "flex w-full max-w-5xl items-center justify-between rounded-full border py-2 pl-3 pr-2 transition-[background-color,border-color,box-shadow] duration-500",
             scrolled && !open
-              ? "glass border-card-border shadow-[0_12px_40px_-16px_rgb(var(--shadow-tint)/0.35)] backdrop-blur-xl backdrop-saturate-150"
+              ? "glass border-card-border shadow-[0_12px_40px_-16px_rgb(var(--shadow-tint)/0.35)] backdrop-blur-md"
               : "border-transparent bg-transparent",
           )}
         >
@@ -170,12 +179,18 @@ export function Navbar() {
             </div>
             <a
               href="#contact"
-              className="press group hidden h-10 items-center gap-2 rounded-full bg-foreground pl-4 pr-1.5 text-[0.8125rem] font-medium text-background shadow-[inset_0_1px_0_rgb(255_255_255/0.15)] cursor-pointer sm:inline-flex"
+              className="press group hidden h-10 items-center gap-2.5 rounded-full bg-foreground pl-4 pr-1 text-[0.8125rem] font-medium text-background shadow-[inset_0_1px_0_rgb(255_255_255/0.2),0_6px_20px_-8px_rgb(var(--shadow-tint)/0.5)] cursor-pointer sm:inline-flex"
             >
-              <span className="live-dot h-1.5 w-1.5 rounded-full bg-primary" aria-hidden />
               Hire me
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-background/15" aria-hidden>
-                <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 ease-out-strong group-hover:-translate-y-px group-hover:translate-x-px" strokeWidth={1.75} />
+              <span
+                className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-primary text-primary-foreground transition-transform duration-500 ease-out-strong group-hover:scale-105"
+                aria-hidden
+              >
+                {/* Arrow slides out up-right while a twin slides in from bottom-left */}
+                <span className="relative h-3.5 w-3.5">
+                  <ArrowUpRight className="absolute inset-0 h-3.5 w-3.5 transition-transform duration-500 ease-out-strong group-hover:-translate-y-[150%] group-hover:translate-x-[150%]" strokeWidth={2} />
+                  <ArrowUpRight className="absolute inset-0 h-3.5 w-3.5 -translate-x-[150%] translate-y-[150%] transition-transform duration-500 ease-out-strong group-hover:translate-x-0 group-hover:translate-y-0" strokeWidth={2} />
+                </span>
               </span>
             </a>
             <button
