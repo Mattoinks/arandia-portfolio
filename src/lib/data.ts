@@ -10,8 +10,13 @@ export const profile = {
     "Open to internships",
     "Available for freelance",
     "Open to full-time roles",
+    "Open to remote work",
     "Open to collaborations",
   ],
+  /** Work arrangement — shown by the assistant and in the hero badge. */
+  workArrangement: "Open to remote work (based in the Philippines, GMT+8)",
+  /** ISO date — age is computed from it, so it never goes stale. */
+  birthDate: "2005-04-07",
   email: "mattarandia.07@gmail.com",
   avatar: "/assets/avatar/1X1-arandia.jpg",
   avatarCutout: "/assets/avatar/avatar-no-bg.png",
@@ -28,7 +33,7 @@ export const profile = {
   stats: [
     { label: "Projects", value: "4" },
     { label: "Certificates", value: "2" },
-    { label: "BSIT Graduated", value: "2027" },
+    { label: "BSIT Class of", value: "2027" },
   ],
   currently: [
     { icon: "code", label: "Building", detail: "Web & mobile products" },
@@ -63,7 +68,6 @@ export const education: EducationEntry[] = [
 export const socials = [
   { label: "GitHub", href: "https://github.com/Mattoinks", icon: "github" },
   { label: "LinkedIn", href: "https://linkedin.com/in/mattoinks", icon: "linkedin" },
-  { label: "X / Twitter", href: "https://x.com/", icon: "twitter" },
   { label: "Email", href: "mailto:mattarandia.07@gmail.com", icon: "mail" },
 ] as const;
 
@@ -296,7 +300,7 @@ export const projects: Project[] = [
     tagline: "Real-time ASL alphabet translation",
     role: "Documentation, Quality Assurance & Testing",
     description:
-      "SignA2Z is a computer vision-powered application designed to break communication barriers between Deaf and hearing individuals by providing real-time American Sign Language (ASL) alphabet translation into text. The system features both Android mobile and web dashboards integrated with a secure Google API login, translation history retrieval, and basic ASL learning modules with text and video tutorials. Scheduled for prototype completion by December 2025, the project targets at least 90% recognition accuracy and sub-second processing speeds while keeping its scope strictly focused on the alphabet and simple phrases without requiring specialized hardware or commercial app store deployment.",
+      "SignA2Z is a computer vision-powered application built to break communication barriers between Deaf and hearing individuals by translating American Sign Language (ASL) alphabet signs into text in real time. It runs on both an Android app and a web dashboard, with secure Google sign-in, translation history, and beginner ASL learning modules with text and video tutorials. The project deliberately focused on the alphabet and simple phrases, running on everyday devices without specialized hardware.",
     tags: ["Mobile", "Web", "Computer Vision"],
     codeUrl: "https://github.com/KManipis/SignA2ZRepository.git",
     thumbnail: "/assets/images/projects/SIGNA2Z.png",

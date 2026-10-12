@@ -7,7 +7,8 @@ export function Footer() {
   return (
     <footer className="relative mx-auto w-full max-w-7xl overflow-hidden px-6 pb-8 sm:px-10">
       <FooterWordmark />
-      <div className="flex flex-col gap-4 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+      {/* Right padding keeps "Back to top" clear of the fixed Matte launcher. */}
+      <div className="flex flex-col gap-4 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:pr-24">
         <p>
           © {new Date().getFullYear()} {profile.name}
         </p>

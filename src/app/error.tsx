@@ -16,7 +16,7 @@ export default function Error({
   }, [error]);
 
   return (
-    <section className="relative mx-auto flex min-h-[80dvh] max-w-3xl flex-col items-center justify-center px-6 py-28 text-center sm:px-10">
+    <main id="main-content" className="relative mx-auto flex min-h-[80dvh] max-w-3xl flex-col items-center justify-center px-6 py-28 text-center sm:px-10">
       <p className="mb-6 font-mono text-xs uppercase tracking-[0.18em] text-primary">Error</p>
       <h1 className="text-balance font-heading text-5xl font-medium leading-[0.95] tracking-[-0.045em] sm:text-7xl">
         Something went wrong.
@@ -33,6 +33,6 @@ export default function Error({
           <ArrowLeft className="h-4 w-4" strokeWidth={2} /> Back to home
         </MagneticButton>
       </div>
-    </section>
+    </main>
   );
 }

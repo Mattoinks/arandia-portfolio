@@ -41,3 +41,6 @@ yarn-error.log*
 next-env.d.ts
 
 !.env.example
+
+# Source art for the assistant avatar (site uses assistant-icon.webp)
+public/assets/avatar/assistant.jpg

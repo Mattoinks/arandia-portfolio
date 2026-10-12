@@ -3,10 +3,11 @@
 import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
-import { ArrowLeft, ArrowUpRight, Search } from "lucide-react";
+import { ArrowLeft, Search } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useCommandMenu } from "@/components/command-menu";
+import { HireButton } from "@/components/ui/hire-button";
 import { EASE } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
@@ -68,21 +69,7 @@ export function ProjectHeader() {
             <span className="mx-1 hidden h-4 w-px bg-border md:block" aria-hidden />
             <ThemeToggle bare />
           </div>
-          <Link
-            href="/#contact"
-            className="press group inline-flex h-10 items-center gap-2.5 rounded-full bg-foreground pl-4 pr-1 text-[0.8125rem] font-medium text-background shadow-[inset_0_1px_0_rgb(255_255_255/0.2),0_6px_20px_-8px_rgb(var(--shadow-tint)/0.5)]"
-          >
-            Hire me
-            <span
-              className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-primary text-primary-foreground transition-transform duration-500 ease-out-strong group-hover:scale-105"
-              aria-hidden
-            >
-              <span className="relative h-3.5 w-3.5">
-                <ArrowUpRight className="absolute inset-0 h-3.5 w-3.5 transition-transform duration-500 ease-out-strong group-hover:-translate-y-[150%] group-hover:translate-x-[150%]" strokeWidth={2} />
-                <ArrowUpRight className="absolute inset-0 h-3.5 w-3.5 -translate-x-[150%] translate-y-[150%] transition-transform duration-500 ease-out-strong group-hover:translate-x-0 group-hover:translate-y-0" strokeWidth={2} />
-              </span>
-            </span>
-          </Link>
+          <HireButton href="/#contact" />
         </div>
       </nav>
     </motion.header>

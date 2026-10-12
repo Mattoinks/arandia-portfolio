@@ -11,7 +11,7 @@ import {
   CornerDownLeft,
   GraduationCap,
   Hash,
-  Layers,
+  Copy,
   Moon,
   Search,
   ShieldCheck,
@@ -21,11 +21,14 @@ import {
 import { GithubIcon, LinkedinIcon } from "@/components/icons/brand-icons";
 import { profile, socials } from "@/lib/data";
 import { lockScroll, scrollToTarget } from "@/lib/smooth-scroll";
+import { OPEN_ASSISTANT_EVENT } from "@/lib/contact-prefill";
 import { cn } from "@/lib/utils";
 
 interface Command {
   id: string;
-  group: "Navigate" | "Actions" | "Elsewhere";
+  group: "Ask" | "Navigate" | "Actions" | "Elsewhere";
+  /** Two-digit section index shown on navigation rows. */
+  index?: string;
   label: string;
   hint?: string;
   icon: ReactNode;
@@ -95,18 +98,29 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
     const linkedin = socials.find((s) => s.icon === "linkedin")?.href;
     return [
       { id: "top", group: "Navigate", label: "Home", icon: <Hash className={ICON} />, run: go("#top") },
-      { id: "skills", group: "Navigate", label: "Capabilities", icon: <Sparkles className={ICON} />, run: go("#skills") },
-      { id: "work", group: "Navigate", label: "Selected work", icon: <Briefcase className={ICON} />, run: go("#work") },
-      { id: "certs", group: "Navigate", label: "Certifications", icon: <ShieldCheck className={ICON} />, run: go("#certifications") },
-      { id: "edu", group: "Navigate", label: "Education", icon: <GraduationCap className={ICON} />, run: go("#education") },
-      { id: "about", group: "Navigate", label: "About", icon: <User className={ICON} />, run: go("#about") },
-      { id: "contact", group: "Navigate", label: "Contact", icon: <AtSign className={ICON} />, run: go("#contact") },
+      { id: "skills", group: "Navigate", index: "01", label: "Capabilities", icon: <Sparkles className={ICON} />, run: go("#skills") },
+      { id: "work", group: "Navigate", index: "02", label: "Selected work", icon: <Briefcase className={ICON} />, run: go("#work") },
+      { id: "certs", group: "Navigate", index: "03", label: "Certifications", icon: <ShieldCheck className={ICON} />, run: go("#certifications") },
+      { id: "edu", group: "Navigate", index: "04", label: "Education", icon: <GraduationCap className={ICON} />, run: go("#education") },
+      { id: "about", group: "Navigate", index: "05", label: "About", icon: <User className={ICON} />, run: go("#about") },
+      { id: "contact", group: "Navigate", index: "06", label: "Contact", icon: <AtSign className={ICON} />, run: go("#contact") },
+      {
+        id: "assistant",
+        group: "Actions",
+        label: "Chat with Matte",
+        hint: "AI assistant",
+        icon: <Sparkles className={ICON} />,
+        run: () => {
+          onClose();
+          window.dispatchEvent(new Event(OPEN_ASSISTANT_EVENT));
+        },
+      },
       {
         id: "copy",
         group: "Actions",
         label: "Copy email address",
         hint: profile.email,
-        icon: <Layers className={ICON} />,
+        icon: <Copy className={ICON} />,
         run: () => {
           navigator.clipboard
             .writeText(profile.email)
@@ -148,10 +162,24 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
   }, [onClose, resolvedTheme, setTheme, router]);
 
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const raw = query.trim();
+    const q = raw.toLowerCase();
     if (!q) return commands;
-    return commands.filter((c) => `${c.label} ${c.group} ${c.hint ?? ""}`.toLowerCase().includes(q));
-  }, [commands, query]);
+    const matches = commands.filter((c) => `${c.label} ${c.group} ${c.hint ?? ""}`.toLowerCase().includes(q));
+    // Anything typed can also go straight to Matte — first when nothing else matches.
+    const askMatte: Command = {
+      id: "ask-matte",
+      group: "Ask",
+      label: `Ask Matte: “${raw.length > 48 ? `${raw.slice(0, 48)}…` : raw}”`,
+      hint: "AI",
+      icon: <Sparkles className={ICON} />,
+      run: () => {
+        onClose();
+        window.dispatchEvent(new CustomEvent(OPEN_ASSISTANT_EVENT, { detail: { question: raw } }));
+      },
+    };
+    return matches.length ? [...matches, askMatte] : [askMatte];
+  }, [commands, query, onClose]);
 
   const activeIndex = Math.min(active, Math.max(filtered.length - 1, 0));
 
@@ -197,7 +225,7 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
 
   return (
     <div
-      className="fixed inset-0 z-[110] flex items-start justify-center bg-background/60 px-4 pt-[14vh] backdrop-blur-sm"
+      className="fixed inset-0 z-[110] flex items-start justify-center bg-background/60 px-4 pt-[12vh] backdrop-blur-sm"
       onMouseDown={onClose}
       role="presentation"
     >
@@ -207,10 +235,13 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
         aria-label="Command menu"
         onMouseDown={(e) => e.stopPropagation()}
         onKeyDown={onKeyDown}
-        className="glass w-full max-w-lg overflow-hidden rounded-2xl shadow-[0_32px_80px_-24px_rgb(var(--shadow-tint)/0.6)] backdrop-blur-md"
+        className="relative w-full max-w-xl overflow-hidden rounded-[1.5rem] border border-card-border bg-background shadow-[0_40px_100px_-30px_rgb(var(--shadow-tint)/0.8)]"
       >
-        <div className="flex items-center gap-3 border-b border-border px-4">
-          <Search className="h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={1.5} aria-hidden />
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-[radial-gradient(70%_100%_at_15%_0%,var(--glow),transparent)]" />
+
+        {/* Search */}
+        <div className="relative flex items-center gap-3 border-b border-border/70 px-5">
+          <Search className="h-[1.125rem] w-[1.125rem] shrink-0 text-primary" strokeWidth={1.75} aria-hidden />
           <input
             ref={inputRef}
             value={query}
@@ -218,62 +249,100 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
               setQuery(e.target.value);
               setActive(0);
             }}
-            placeholder="Type a command or search…"
+            placeholder="Search the site, or ask Matte anything…"
             role="combobox"
             aria-expanded="true"
             aria-controls="command-list"
             aria-activedescendant={filtered[activeIndex] ? `cmd-${filtered[activeIndex].id}` : undefined}
-            className="h-14 w-full bg-transparent text-base outline-none placeholder:text-muted-foreground"
+            className="cmdk-input h-16 w-full bg-transparent text-[1.0625rem] tracking-[-0.01em] outline-none placeholder:text-muted-foreground"
           />
           <span className="kbd">esc</span>
         </div>
 
-        <ul ref={listRef} id="command-list" role="listbox" data-lenis-prevent className="max-h-[50vh] overflow-y-auto overscroll-contain p-2">
-          {filtered.length === 0 && (
-            <li className="px-3 py-10 text-center text-sm text-muted-foreground">No results for “{query}”.</li>
-          )}
+        {/* Results */}
+        <ul
+          ref={listRef}
+          id="command-list"
+          role="listbox"
+          data-lenis-prevent
+          className="thin-scroll relative max-h-[52vh] overflow-y-auto overscroll-contain p-2"
+        >
           {filtered.map((cmd, i) => {
             const header = cmd.group !== lastGroup ? cmd.group : null;
             lastGroup = cmd.group;
+            const isActive = i === activeIndex;
+            const groupCount = header ? filtered.filter((c) => c.group === cmd.group).length : 0;
             return (
               <li key={cmd.id} role="presentation">
                 {header && (
-                  <p className="px-3 pb-1.5 pt-3 font-mono text-[0.625rem] uppercase tracking-[0.18em] text-muted-foreground first:pt-1">
-                    {header}
+                  <p className="flex items-center gap-2 px-3 pb-2 pt-4 font-mono text-[0.625rem] uppercase tracking-[0.18em] text-muted-foreground first:pt-2">
+                    {header === "Ask" ? "Ask Matte" : header}
+                    <span className="text-muted-foreground/50 tabular">{groupCount}</span>
                   </p>
                 )}
                 <div
                   id={`cmd-${cmd.id}`}
                   role="option"
-                  aria-selected={i === activeIndex}
+                  aria-selected={isActive}
                   data-index={i}
-                  onMouseMove={() => i !== activeIndex && setActive(i)}
+                  onMouseMove={() => !isActive && setActive(i)}
                   onClick={() => cmd.run()}
                   className={cn(
-                    "flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm",
-                    i === activeIndex ? "bg-foreground/[0.07] text-foreground" : "text-muted-foreground",
+                    "relative flex cursor-pointer items-center gap-3 rounded-2xl px-3 py-2 text-sm",
+                    isActive ? "bg-foreground/[0.06] text-foreground" : "text-muted-foreground",
                   )}
                 >
-                  <span className={cn("shrink-0", i === activeIndex && "text-primary")}>{cmd.icon}</span>
-                  <span className="flex-1 truncate">{cmd.label}</span>
-                  {cmd.hint && <span className="truncate font-mono text-[0.6875rem] text-muted-foreground">{cmd.hint}</span>}
-                  {cmd.group === "Elsewhere" && <ArrowUpRight className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} />}
+                  {/* Accent bar on the selected row — no motion: this is a keyboard tool. */}
+                  <span
+                    aria-hidden
+                    className={cn("absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full bg-primary", !isActive && "opacity-0")}
+                  />
+                  <span
+                    className={cn(
+                      "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border",
+                      cmd.group === "Ask"
+                        ? "border-primary/40 bg-primary text-primary-foreground"
+                        : isActive
+                          ? "border-primary/40 bg-primary/12 text-primary"
+                          : "border-border bg-card text-muted-foreground",
+                    )}
+                  >
+                    {cmd.icon}
+                  </span>
+                  <span className={cn("flex-1 truncate", cmd.group === "Ask" && "text-foreground")}>{cmd.label}</span>
+                  {cmd.index && <span className="font-mono text-[0.6875rem] text-muted-foreground/60 tabular">{cmd.index}</span>}
+                  {cmd.hint && !isActive && (
+                    <span className="max-w-[40%] truncate font-mono text-[0.6875rem] text-muted-foreground">{cmd.hint}</span>
+                  )}
+                  {cmd.group === "Elsewhere" && !isActive && <ArrowUpRight className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} />}
+                  {isActive && (
+                    <span className="kbd border-primary/30 text-primary" aria-hidden>
+                      <CornerDownLeft className="h-3 w-3" />
+                    </span>
+                  )}
                 </div>
               </li>
             );
           })}
         </ul>
 
-        <div className="flex items-center justify-between gap-4 border-t border-border px-4 py-2.5 font-mono text-[0.625rem] uppercase tracking-[0.14em] text-muted-foreground">
-          <span aria-live="polite">{toast ?? "Navigate the site"}</span>
+        {/* Footer */}
+        <div className="relative flex items-center justify-between gap-4 border-t border-border/70 bg-card/50 px-5 py-3 font-mono text-[0.625rem] uppercase tracking-[0.14em] text-muted-foreground">
+          <span aria-live="polite" className={cn("flex items-center", toast && "text-primary")}>
+            {toast ?? (
+              <>
+                Arandia<span className="text-primary">.</span>dev
+              </>
+            )}
+          </span>
           <span className="flex items-center gap-1.5">
             <span className="kbd">↑</span>
             <span className="kbd">↓</span>
-            <span className="ml-1">select</span>
-            <span className="kbd ml-2">
+            <span className="ml-1 mr-2">select</span>
+            <span className="kbd">
               <CornerDownLeft className="h-3 w-3" />
             </span>
-            <span className="ml-1">run</span>
+            <span className="ml-1">open</span>
           </span>
         </div>
       </div>
