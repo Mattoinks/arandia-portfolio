@@ -4,15 +4,15 @@ import { cn } from "@/lib/utils";
 
 /**
  * The navbar's primary CTA, shared by the home and project headers.
- * Styling lives in globals.css (`.hire-btn`): bevelled gradient pill, a sheen
- * that sweeps across on hover, a rolling label and a glowing arrow island —
- * all transform/opacity, so it stays cheap.
+ * Styling lives in globals.css (`.hire-btn`): a clean pill whose orange lens
+ * expands to flood the button on hover, with a rolling label and an arrow that
+ * flies out and back — transform/opacity only, so it stays cheap.
  */
 export function HireButton({ href, className }: { href: string; className?: string }) {
   return (
     <Link href={href} className={cn("hire-btn press group", className)}>
-      <span className="hire-btn__sheen" aria-hidden />
-      <span className="roll relative">
+      <span className="hire-btn__fill" aria-hidden />
+      <span className="roll hire-btn__label">
         <span>Hire me</span>
         <span aria-hidden>Hire me</span>
       </span>
