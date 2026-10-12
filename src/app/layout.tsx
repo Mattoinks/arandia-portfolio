@@ -8,6 +8,7 @@ import { SmoothScroll } from "@/components/smooth-scroll";
 import { ClickSpark } from "@/components/reactbits/click-spark";
 import { ThemeColorSync } from "@/components/theme-color-sync";
 import { CommandMenuProvider } from "@/components/command-menu";
+import { ChatWidget } from "@/components/assistant/chat-widget";
 import { ScrollProgress } from "@/components/scroll-progress";
 import { profile, socials } from "@/lib/data";
 import { SITE_URL } from "@/lib/site";
@@ -29,6 +30,8 @@ const newsreader = Newsreader({
   subsets: ["latin"],
   style: ["normal", "italic"],
   axes: ["opsz"],
+  // Only used below the fold (About bio, project overviews) — don't compete with hero assets.
+  preload: false,
 });
 
 const instrumentSerif = Instrument_Serif({
@@ -125,6 +128,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <ScrollProgress />
             <CommandMenuProvider>
               <div className="relative z-10 flex min-h-full flex-col">{children}</div>
+              <ChatWidget />
             </CommandMenuProvider>
           </MotionConfig>
         </ThemeProvider>

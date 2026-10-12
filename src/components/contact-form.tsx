@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState, type FocusEvent } from "react";
+import { useActionState, useEffect, useRef, useState, type FocusEvent } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUpRight, Check, LoaderCircle } from "lucide-react";
 import { sendMessage } from "@/app/actions/contact";
@@ -12,6 +12,7 @@ import {
   type ContactState,
 } from "@/lib/contact";
 import { EASE_OUT } from "@/lib/motion";
+import { onContactPrefill, takePendingPrefill, type ContactPrefill } from "@/lib/contact-prefill";
 import { cn } from "@/lib/utils";
 
 const INITIAL: ContactState = { status: "idle" };
@@ -69,6 +70,25 @@ export function ContactForm() {
   // Each submission returns a fresh state object, so "Send another" dismisses this one only.
   const [dismissed, setDismissed] = useState<ContactState | null>(null);
   const [formKey, setFormKey] = useState(0);
+  const messageRef = useRef<HTMLTextAreaElement>(null);
+
+  // Drafts handed over by the assistant ("Ask Matthew directly").
+  useEffect(() => {
+    const apply = (d: ContactPrefill) => {
+      takePendingPrefill(); // consumed — don't re-apply on a later mount
+      if (d.subject) setSubject(d.subject);
+      const el = messageRef.current;
+      if (el && d.message && !el.value.trim()) {
+        el.value = d.message;
+        setMessageLength(d.message.length);
+      }
+      // Focus after the smooth scroll settles, without yanking the page.
+      setTimeout(() => el?.focus({ preventScroll: true }), 900);
+    };
+    const pending = takePendingPrefill();
+    if (pending) apply(pending);
+    return onContactPrefill(apply);
+  }, [formKey]);
 
   const onBlur = (e: FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const form = e.currentTarget.form;
@@ -226,6 +246,7 @@ export function ContactForm() {
 
             <Field id="message" label="Message" error={errorFor("message")} hint={`${messageLength}/${CONTACT_LIMITS.message}`}>
               <textarea
+                ref={messageRef}
                 id="message"
                 name="message"
                 required
