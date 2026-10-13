@@ -9,6 +9,7 @@ import { MagneticButton } from "@/components/ui/magnetic-button";
 import { Surface } from "@/components/ui/surface";
 import { TextReveal } from "@/components/ui/text-reveal";
 import { TiltedCard } from "@/components/reactbits/tilted-card";
+import { MetricTiles } from "@/components/project/metric-tiles";
 import { blurPlaceholders } from "@/lib/blur-placeholders";
 import type { Project, ProjectShot } from "@/lib/data";
 import { EASE, fadeUp, staggerContainer, viewport } from "@/lib/motion";
@@ -177,6 +178,19 @@ export function ProjectDetail({ project, index, total, prev, next }: ProjectDeta
       <div className="mt-14">
         <Cover project={project} />
       </div>
+
+      {project.metrics && (
+        <motion.section
+          aria-label="Results"
+          initial="hidden"
+          whileInView="show"
+          viewport={viewport}
+          variants={fadeUp}
+          className="mt-10"
+        >
+          <MetricTiles metrics={project.metrics} size="lg" className="sm:max-w-2xl" />
+        </motion.section>
+      )}
 
       {/* Overview */}
       <section className="mt-20 grid gap-8 lg:grid-cols-12 lg:gap-10" aria-labelledby="overview">

@@ -75,7 +75,7 @@ export function Contact() {
   return (
     <section id="contact" className="relative mx-auto max-w-7xl px-6 pb-16 pt-14 sm:px-10 sm:pt-16 lg:pt-20">
       <motion.div initial="hidden" whileInView="show" viewport={viewport} variants={fadeUp} className="mb-8">
-        <Eyebrow index="06">Get in touch</Eyebrow>
+        <Eyebrow index="07">Get in touch</Eyebrow>
       </motion.div>
 
       <h2 className="font-heading text-[clamp(3.5rem,11vw,10rem)] font-medium leading-[0.88] tracking-[-0.055em]">

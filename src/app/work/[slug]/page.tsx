@@ -25,7 +25,6 @@ export async function generateMetadata(props: PageProps<"/work/[slug]">): Promis
       title: `${project.name} — ${project.tagline}`,
       description,
       url: `/work/${project.slug}`,
-      images: project.thumbnail ? [{ url: project.thumbnail }] : undefined,
     },
   };
 }

@@ -514,6 +514,21 @@ body {
   }
 }
 
+/* Experience timeline: ring that expands once when a stop lights up. */
+.exp-ripple {
+  animation: exp-ripple 0.9s var(--ease-out-strong) both;
+}
+@keyframes exp-ripple {
+  from {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  to {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
 .typing-dot {
   animation: typing-dot 1.2s var(--ease-in-out-strong) infinite;
 }
@@ -613,5 +628,35 @@ body {
   ::view-transition-old(root),
   ::view-transition-new(root) {
     animation: none !important;
+  }
+}
+
+/* ---------- Print (the /resume page) ---------- */
+@media print {
+  :root,
+  .dark {
+    --background: #ffffff;
+    --foreground: #111111;
+    --muted-foreground: #444444;
+    --border: #d4d4d4;
+    --primary: #b4400c;
+  }
+  @page {
+    margin: 14mm;
+  }
+  body {
+    background: #fff !important;
+    color: #111 !important;
+  }
+  .backdrop-glow,
+  .backdrop-grain,
+  canvas,
+  footer,
+  [aria-label^="Ask Matte"],
+  .site-nav {
+    display: none !important;
+  }
+  a {
+    text-decoration: none;
   }
 }

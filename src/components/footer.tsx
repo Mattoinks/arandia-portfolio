@@ -1,5 +1,7 @@
 import { ArrowUp } from "lucide-react";
+import Link from "next/link";
 import { profile } from "@/lib/data";
+import { publishedNotes } from "@/lib/notes";
 import { FooterClock, FooterWordmark } from "@/components/footer-parts";
 import { Magnet } from "@/components/reactbits/magnet";
 
@@ -12,7 +14,13 @@ export function Footer() {
         <p>
           © {new Date().getFullYear()} {profile.name}
         </p>
-        <FooterClock />
+        <nav aria-label="Footer" className="flex items-center gap-5">
+          <Link href="/resume" className="transition-colors hover:text-foreground">Resume</Link>
+          {publishedNotes.length > 0 && (
+            <Link href="/notes" className="transition-colors hover:text-foreground">Notes</Link>
+          )}
+          <FooterClock />
+        </nav>
         <a href="#top" className="group inline-flex w-fit items-center gap-2 font-medium text-foreground">
           Back to top
           <Magnet padding={24} strength={3}>

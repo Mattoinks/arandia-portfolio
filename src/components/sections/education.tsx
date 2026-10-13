@@ -11,7 +11,7 @@ export function Education() {
   return (
     <section id="education" className="relative mx-auto max-w-7xl px-6 py-14 sm:px-10 sm:py-16 lg:py-20">
       <SectionHeading
-        index="04"
+        index="05"
         eyebrow="Education"
         title="Academic"
         accent="journey"

@@ -16,6 +16,7 @@ import { isProgrammaticScroll, lockScroll, scrollToTarget } from "@/lib/smooth-s
 const NAV_LINKS = [
   { href: "#skills", label: "Capabilities" },
   { href: "#work", label: "Work" },
+  { href: "#experience", label: "Experience" },
   { href: "#certifications", label: "Certifications" },
   { href: "#education", label: "Education" },
   { href: "#about", label: "About" },

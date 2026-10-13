@@ -1,6 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import Link from "next/link";
 import { useTheme } from "next-themes";
 import { motion } from "framer-motion";
 import { ArrowDownToLine, Code2, FlaskConical, Sparkles } from "lucide-react";
@@ -29,7 +30,7 @@ export function About() {
   return (
     <section id="about" className="relative mx-auto max-w-7xl px-6 py-14 sm:px-10 sm:py-16 lg:py-20">
       <motion.div initial="hidden" whileInView="show" viewport={viewport} variants={fadeUp} className="mb-6">
-        <Eyebrow index="05">About me</Eyebrow>
+        <Eyebrow index="06">About me</Eyebrow>
       </motion.div>
       <h2 className="max-w-4xl text-balance font-heading text-5xl font-medium leading-[0.95] tracking-[-0.05em] sm:text-7xl lg:text-[5.5rem]">
         <TextReveal text="Problem solver." className="block" />{" "}
@@ -86,7 +87,12 @@ export function About() {
             >
               Download my resume
               <ArrowDownToLine className="h-4 w-4" strokeWidth={1.5} aria-hidden />
-            </a>
+            </a>{" "}
+            or{" "}
+            <Link href="/resume" className="link-underline inline-flex items-center gap-1 pb-0.5 font-medium text-foreground">
+              view it online
+            </Link>
+            .
           </motion.p>
 
           <motion.div variants={fadeUp} className="mt-14">

@@ -12,7 +12,7 @@ import { EASE } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 /** Slim floating header for project pages: back to the work list, ⌘K, theme, hire. */
-export function ProjectHeader() {
+export function ProjectHeader({ backHref = "/#work", backLabel = "All work" }: { backHref?: string; backLabel?: string }) {
   const [scrolled, setScrolled] = useState(false);
   const { scrollY } = useScroll();
   const { open } = useCommandMenu();
@@ -29,7 +29,7 @@ export function ProjectHeader() {
       initial={{ y: -24, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, ease: EASE }}
-      className="site-nav fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-[max(1rem,env(safe-area-inset-top))]"
+      className="site-nav fixed inset-x-0 top-0 z-50 print:hidden flex justify-center px-4 pt-[max(1rem,env(safe-area-inset-top))]"
     >
       <nav
         aria-label="Project"
@@ -43,11 +43,11 @@ export function ProjectHeader() {
         <div className="flex items-center gap-3 pl-1">
           <Logo href="/" />
           <Link
-            href="/#work"
+            href={backHref}
             className="group inline-flex items-center gap-1.5 text-[0.8125rem] text-muted-foreground transition-colors duration-200 hover:text-foreground"
           >
             <ArrowLeft className="h-3.5 w-3.5 transition-transform duration-300 ease-out-strong group-hover:-translate-x-0.5" strokeWidth={1.5} />
-            All work
+            {backLabel}
           </Link>
         </div>
         <div className="flex items-center gap-2">

@@ -15,6 +15,19 @@ export const profile = {
   ],
   /** Work arrangement — shown by the assistant and in the hero badge. */
   workArrangement: "Open to remote work (based in the Philippines, GMT+8)",
+  /**
+   * Extra facts for the AI assistant (Matte). Add answers to questions you get
+   * often — e.g. languages spoken, notice period, preferred stack.
+   */
+  assistantFaq: [
+    { q: "Salary / rate expectations", a: "Open to discussion — best discussed directly with Matthew." },
+    { q: "Languages spoken", a: "English and Filipino." },
+    { q: "Start date", a: "Available now — can start immediately." },
+    { q: "Schedule", a: "Part-time while finishing his BSIT (class of 2027); full-time after graduation." },
+    { q: "Work arrangement", a: "Open to remote work; based in Dasmariñas, Cavite, Philippines (GMT+8)." },
+    { q: "Preferred tech stack", a: "No strict preference — he adapts to the team's stack. Most experienced with React/Next.js, TypeScript, Python (FastAPI) and PostgreSQL/Supabase." },
+    { q: "Graduation", a: "BSIT, Major in Mobile and Web Applications, National University Dasmariñas — expected 2027." },
+  ],
   /** ISO date — age is computed from it, so it never goes stale. */
   birthDate: "2005-04-07",
   email: "mattarandia.07@gmail.com",
@@ -68,6 +81,8 @@ export const education: EducationEntry[] = [
 export const socials = [
   { label: "GitHub", href: "https://github.com/Mattoinks", icon: "github" },
   { label: "LinkedIn", href: "https://linkedin.com/in/mattoinks", icon: "linkedin" },
+  { label: "Instagram", href: "https://www.instagram.com/maaatttsuuu/", icon: "instagram" },
+  { label: "Facebook", href: "https://www.facebook.com/maaatttsuuu", icon: "facebook" },
   { label: "Email", href: "mailto:mattarandia.07@gmail.com", icon: "mail" },
 ] as const;
 
@@ -220,6 +235,12 @@ export interface ProjectShot {
   kind: "desktop" | "mobile";
 }
 
+export interface ProjectMetric {
+  /** Big figure, e.g. "8 → 3 min". */
+  value: string;
+  label: string;
+}
+
 export interface Project {
   slug: string;
   name: string;
@@ -233,6 +254,8 @@ export interface Project {
   /** Extra screenshots for the project page, after the thumbnail. */
   gallery?: ProjectShot[];
   status: "production" | "completed" | "in-progress" | "archived";
+  /** Measured outcomes, shown as stat tiles on the work row and case study. */
+  metrics?: ProjectMetric[];
   architecture?: ProjectArchitecture;
 }
 
@@ -248,10 +271,17 @@ export const projects: Project[] = [
     codeUrl: "https://github.com/Mattoinks/Masterfile-Automation-System.git",
     thumbnail: "/assets/images/projects/INFINEON.png",
     status: "in-progress",
+    metrics: [
+      { value: "8 → 3 min", label: "Processing time per Delivery Note" },
+      { value: "62%", label: "Faster DN processing" },
+    ],
     architecture: {
-      database: "Details coming soon — data structure pending write-up.",
-      workflow: "Details coming soon — automation workflow pending write-up.",
-      logic: "Details coming soon — core logic pending write-up.",
+      database:
+        "Supabase PostgreSQL is the single source of truth for RMA records and their lot breakdowns, replacing scattered spreadsheets. Excel export is kept for reporting and for teams outside the system.",
+      workflow:
+        "A Delivery Note PDF is uploaded → its data is extracted automatically → the system validates it and checks for duplicates → the RMA record and lot breakdown are saved → the organized masterfile can be exported to Excel. Internal staff and requesters each work in their own role-based portal.",
+      logic:
+        "React frontend with a FastAPI backend. Validation rules and duplicate detection catch bad or repeated entries before they reach the masterfile, and automated record management removes the manual copy-paste — cutting processing from about 8 minutes to about 3 minutes per Delivery Note.",
     },
   },
   {
@@ -274,9 +304,12 @@ export const projects: Project[] = [
     ],
     status: "completed",
     architecture: {
-      database: "Details coming soon — ER structure and schema pending write-up.",
-      workflow: "Details coming soon — patient/session data flow pending write-up.",
-      logic: "Details coming soon — core business logic pending write-up.",
+      database:
+        "A centralized PostgreSQL database replaces paper records: residents at the center, linked to admission and discharge requests, care documentation, recovery-ladder progress and visitation schedules, with role-based accounts for Guardians, Nurses, Program Staff and Administrators.",
+      workflow:
+        "Guardians submit admission, discharge and visitation requests → staff review and act on them → Nurses and Program Staff record care notes and recovery-ladder progress → Administrators oversee everything from operational dashboards, with real-time updates keeping families and care providers in sync.",
+      logic:
+        "Four dedicated workspaces, each with role-specific access control, so every user sees only what their role needs. Built with ReactJS on PostgreSQL as a responsive app that works on desktop and mobile.",
     },
   },
   {
@@ -289,9 +322,9 @@ export const projects: Project[] = [
     codeUrl: "https://github.com/Mattoinks/sahari-pay.git",
     status: "in-progress",
     architecture: {
-      database: "Details coming soon — schema and data model pending write-up.",
-      workflow: "Details coming soon — transaction and payment flow pending write-up.",
-      logic: "Details coming soon — core business logic pending write-up.",
+      database: "Case study in progress — this client project is still being built.",
+      workflow: "Case study in progress — this client project is still being built.",
+      logic: "Case study in progress — this client project is still being built.",
     },
   },
   {
@@ -306,9 +339,82 @@ export const projects: Project[] = [
     thumbnail: "/assets/images/projects/SIGNA2Z.png",
     status: "completed",
     architecture: {
-      database: "Details coming soon — schema for accounts, translation history, and learning modules pending write-up.",
-      workflow: "Details coming soon — real-time ASL recognition and translation pipeline pending write-up.",
-      logic: "Details coming soon — recognition accuracy and processing logic pending write-up.",
+      database:
+        "User accounts through secure Google sign-in, each with a saved translation history, plus content for the ASL learning modules (text and video tutorials).",
+      workflow:
+        "The camera captures a hand sign → a computer-vision model recognizes the ASL letter → the result appears as text in real time on the Android app or web dashboard → translations are saved to the user's history.",
+      logic:
+        "Scope was deliberately kept to the ASL alphabet and simple phrases so it runs on everyday devices without specialized hardware. Matthew's role covered documentation, quality assurance and testing of the recognition and app flows.",
     },
   },
 ];
+
+export interface ExperienceEntry {
+  role: string;
+  org: string;
+  /** e.g. "Freelance · Remote" */
+  type: string;
+  /** "Ongoing" or a completed label — no invented dates. */
+  period: string;
+  summary: string;
+  points: string[];
+  /** Links to the case study. */
+  project?: string;
+}
+
+export const experience: ExperienceEntry[] = [
+  {
+    role: "Freelance Full-Stack Developer",
+    org: "Infineon Technologies · Singapore",
+    type: "Freelance · Remote",
+    period: "Ongoing",
+    summary: "Building an RMA masterfile automation system that replaces manual Delivery Note processing.",
+    points: [
+      "Cut processing from ~8 to ~3 minutes per Delivery Note",
+      "Automated PDF data extraction, validation and duplicate detection",
+      "React + FastAPI + Supabase PostgreSQL, with role-based portals",
+    ],
+    project: "infineon",
+  },
+  {
+    role: "Full-Stack Developer",
+    org: "SAHARI PAY",
+    type: "Client project · Solo",
+    period: "Ongoing",
+    summary: "Designing and building a mobile and web platform end-to-end for a client.",
+    points: ["Sole developer across mobile, web and backend"],
+    project: "sahari-pay",
+  },
+  {
+    role: "Full-Stack Developer",
+    org: "KALINGA · Bridges of Hope Imus",
+    type: "Capstone · National University Dasmariñas",
+    period: "Completed",
+    summary: "Clinical and rehabilitation management system replacing paper-based procedures.",
+    points: [
+      "Four role-based workspaces for Guardians, Nurses, Program Staff and Admins",
+      "Admissions, care documentation, recovery tracking and visitation in one system",
+      "Recognized as Best Capstone Paper and System",
+    ],
+    project: "kalinga",
+  },
+  {
+    role: "Documentation, QA & Testing",
+    org: "SIGNA2Z",
+    type: "Team project",
+    period: "Completed",
+    summary: "Real-time ASL alphabet translation app for Android and web.",
+    points: ["Owned documentation, quality assurance and testing of the recognition and app flows"],
+    project: "signa2z",
+  },
+];
+
+export interface Testimonial {
+  quote: string;
+  name: string;
+  /** e.g. "Professor, National University" or "Client, Infineon" */
+  title: string;
+}
+
+/** Real quotes only — the section stays hidden until at least one is added. */
+export const testimonials: Testimonial[] = [];

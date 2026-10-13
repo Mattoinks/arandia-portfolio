@@ -8,6 +8,7 @@ import { SectionHeading } from "@/components/ui/section-heading";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { GithubIcon } from "@/components/icons/brand-icons";
 import { TiltedCard } from "@/components/reactbits/tilted-card";
+import { MetricTiles } from "@/components/project/metric-tiles";
 import { cn } from "@/lib/utils";
 import { projects, socials, type Project } from "@/lib/data";
 import { blurPlaceholders } from "@/lib/blur-placeholders";
@@ -125,6 +126,12 @@ function ProjectRow({ project, index }: { project: Project; index: number }) {
         >
           {project.description}
         </motion.p>
+
+        {project.metrics && (
+          <motion.div variants={fadeUp} className="mt-6">
+            <MetricTiles metrics={project.metrics} />
+          </motion.div>
+        )}
 
         <motion.ul variants={fadeUp} className="mt-6 flex flex-wrap gap-2">
           {project.tags.map((tag) => (
