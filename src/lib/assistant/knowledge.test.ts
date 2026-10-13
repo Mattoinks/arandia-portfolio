@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ageOn, buildSystemPrompt, HANDOFF, parseReply, SUGGESTED } from "./knowledge";
+import { ageOn, buildSystemPrompt, HANDOFF, LOCAL_ANSWERS, parseReply, SUGGESTED } from "./knowledge";
 import { education, profile, projects } from "@/lib/data";
 
 describe("buildSystemPrompt", () => {
@@ -43,5 +43,16 @@ describe("ageOn", () => {
     expect(ageOn("2005-04-07", new Date("2026-10-12T04:00:00Z"))).toBe(21);
     expect(ageOn("2005-04-07", new Date("2027-04-06T12:00:00Z"))).toBe(21); // Apr 6, 8pm in Manila
     expect(ageOn("2005-04-07", new Date("2027-04-06T16:30:00Z"))).toBe(22); // already Apr 7 in Manila
+  });
+});
+
+describe("follow-up tree", () => {
+  it("offers 4 starters and every follow-up has a local answer", () => {
+    expect(SUGGESTED).toHaveLength(4);
+    const known = new Set(LOCAL_ANSWERS.map((a) => a.question));
+    for (const a of LOCAL_ANSWERS) {
+      expect(a.answer.trim().length).toBeGreaterThan(10);
+      for (const f of a.followUps ?? []) expect(known.has(f), `${a.question} -> ${f}`).toBe(true);
+    }
   });
 });

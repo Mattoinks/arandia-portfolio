@@ -5,7 +5,8 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowUp, ArrowUpRight, RotateCcw, Sparkles, X } from "lucide-react";
-import { SUGGESTED, parseReply } from "@/lib/assistant/knowledge";
+import { LOCAL_ANSWERS, SUGGESTED, parseReply } from "@/lib/assistant/knowledge";
+import { socials } from "@/lib/data";
 import { OPEN_ASSISTANT_EVENT, prefillContact } from "@/lib/contact-prefill";
 import { EASE, EASE_OUT } from "@/lib/motion";
 import { lockScroll, scrollToTarget } from "@/lib/smooth-scroll";
@@ -24,6 +25,8 @@ interface Message {
   streaming?: boolean;
   /** Waiting for the first token — show the typing indicator. */
   thinking?: boolean;
+  /** Related next questions for this answer (from the local knowledge tree). */
+  followUps?: string[];
 }
 
 const BOT = "Matte";
@@ -38,7 +41,7 @@ function Avatar({ className, sizes, eager }: { className?: string; sizes: string
   return (
     <span className={cn("relative block shrink-0 overflow-hidden rounded-full bg-primary", className)}>
       <Image
-        src="/assets/avatar/assistant-icon.webp"
+        src="/assets/avatar/assistant-icon-v2.webp"
         alt=""
         fill
         sizes={sizes}
@@ -51,26 +54,183 @@ function Avatar({ className, sizes, eager }: { className?: string; sizes: string
 
 /** Plain text with URLs and email addresses turned into links. */
 function Linkified({ text }: { text: string }) {
-  const parts = text.split(/(https?:\/\/[^\s)]+|[\w.+-]+@[\w-]+\.[\w.]+)/g);
+  const parts = text.split(/(https?:\/\/[^\s)]+|[\w.+-]+@[\w-]+\.[\w.]+|(?<![\w/])\/(?:resume|work\/[\w-]+))/g);
   return (
     <>
       {parts.map((part, i): ReactNode => {
         if (/^https?:\/\//.test(part))
           return (
-            <a key={i} href={part} target="_blank" rel="noreferrer" className="break-all text-primary underline-offset-2 hover:underline">
+            <a key={i} href={part} target="_blank" rel="noreferrer" className="text-primary underline-offset-2 [overflow-wrap:anywhere] hover:underline">
               {part.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}
+            </a>
+          );
+        if (/^\/(?:resume|work\/[\w-]+)$/.test(part))
+          return (
+            <a key={i} href={part} className="text-primary underline-offset-2 hover:underline">
+              {part === "/resume" ? "his online resume" : "the case study"}
             </a>
           );
         if (/^[\w.+-]+@[\w-]+\.[\w.]+$/.test(part))
           return (
-            <a key={i} href={`mailto:${part}`} className="text-primary underline-offset-2 hover:underline">
-              {part}
+            // Compact inline chip: Gmail mark + address, sits inside the sentence.
+            <a
+              key={i}
+              href={`mailto:${part}`}
+              className="press group mx-0.5 inline-flex max-w-full items-center gap-1.5 rounded-full border border-border bg-background/60 py-0.5 pl-1 pr-2.5 align-middle text-[0.8125rem] leading-5 text-foreground transition-colors duration-200 hover:border-primary/50"
+            >
+              <span className="relative h-4 w-4 shrink-0">
+                <Image src="/assets/icons/gmail.png" alt="" fill sizes="16px" className="object-contain" />
+              </span>
+              <span className="truncate group-hover:text-primary">{part}</span>
             </a>
           );
         return part;
       })}
     </>
   );
+}
+
+/** Inline formatting: **bold** (and stray single *emphasis* stripped) + links. */
+function Inline({ text }: { text: string }) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return (
+    <>
+      {parts.map((part, i) =>
+        /^\*\*[^*]+\*\*$/.test(part) ? (
+          <strong key={i} className="font-semibold text-foreground">
+            <Linkified text={part.slice(2, -2)} />
+          </strong>
+        ) : (
+          <Linkified key={i} text={part.replace(/(^|\s)\*(\S[^*]*\S|\S)\*(?=\s|$|[.,!?])/g, "$1$2")} />
+        ),
+      )}
+    </>
+  );
+}
+
+/* ---------- Social links as logo cards ---------- */
+
+const SOCIAL_ICONS: Record<string, string> = {
+  github: "/assets/icons/github.png",
+  linkedin: "/assets/icons/linkedin.png",
+  instagram: "/assets/icons/instagram.png",
+  facebook: "/assets/icons/facebook.png",
+};
+
+const normalizeUrl = (url: string) =>
+  url.toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/[/.,)]+$/, "");
+
+const SOCIAL_BY_URL = new Map(
+  socials.filter((s) => SOCIAL_ICONS[s.icon]).map((s) => [normalizeUrl(s.href), s] as const),
+);
+
+type Social = (typeof socials)[number];
+
+/** If a reply line is just a social profile link (optionally "- Label: url"), return that profile. */
+function socialFromLine(line: string): Social | null {
+  const url = line.match(/https?:\/\/\S+|(?:www\.)?(?:github|linkedin|instagram|facebook)\.com\/\S+/i)?.[0];
+  if (!url) return null;
+  const rest = line.replace(url, "").replace(/^[-*•\d.)\s]+/, "").replace(/[:\-–—\s]+$/, "").trim();
+  const social = SOCIAL_BY_URL.get(normalizeUrl(url));
+  // Only treat it as a card when the line is basically just the link (plus maybe its label).
+  if (!social || rest.replace(/\*/g, "").length > 24) return null;
+  return social;
+}
+
+function handleOf(href: string) {
+  const last = href.replace(/\/+$/, "").split("/").pop() ?? "";
+  return `@${last}`;
+}
+
+function SocialCards({ items }: { items: Social[] }) {
+  return (
+    <div className="my-2 grid min-w-[14rem] gap-1.5 first:mt-0 last:mb-0">
+      {items.map((s) => (
+        <a
+          key={s.href}
+          href={s.href}
+          target="_blank"
+          rel="noreferrer"
+          className="press group flex items-center gap-3 rounded-2xl border border-border bg-background/60 p-2 pr-3.5 transition-colors duration-200 hover:border-primary/40"
+        >
+          <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-[0.7rem]">
+            <Image src={SOCIAL_ICONS[s.icon]} alt="" fill sizes="36px" className="object-cover" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-sm font-medium leading-tight text-foreground">{s.label}</span>
+            <span className="mt-0.5 block truncate text-xs leading-tight text-muted-foreground">{handleOf(s.href)}</span>
+          </span>
+          <ArrowUpRight
+            className="h-3.5 w-3.5 shrink-0 text-muted-foreground transition-[transform,color] duration-300 ease-out-strong group-hover:-translate-y-px group-hover:translate-x-px group-hover:text-primary"
+            strokeWidth={1.75}
+            aria-hidden
+          />
+        </a>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * Renders the small Markdown subset models tend to emit — paragraphs, "- " /
+ * "1." lists, **bold**, "#" headings (shown as bold lines) — as real elements,
+ * so replies never show raw asterisks. Safe: builds React nodes, no HTML.
+ */
+function RichText({ text }: { text: string }) {
+  const blocks: ReactNode[] = [];
+  let list: { ordered: boolean; items: string[] } | null = null;
+  const flush = () => {
+    if (!list) return;
+    const Tag = list.ordered ? "ol" : "ul";
+    blocks.push(
+      <Tag key={`l${blocks.length}`} className={cn("my-1.5 space-y-1 pl-4", list.ordered ? "list-decimal" : "list-disc", "marker:text-primary")}>
+        {list.items.map((item, i) => (
+          <li key={i} className="pl-0.5">
+            <Inline text={item} />
+          </li>
+        ))}
+      </Tag>,
+    );
+    list = null;
+  };
+
+  let socialRun: Social[] = [];
+  const flushSocial = () => {
+    if (!socialRun.length) return;
+    blocks.push(<SocialCards key={`s${blocks.length}`} items={socialRun} />);
+    socialRun = [];
+  };
+
+  for (const raw of text.split("\n")) {
+    const line = raw.trim();
+    const social = line ? socialFromLine(line) : null;
+    if (social) {
+      flush();
+      if (!socialRun.some((x) => x.href === social.href)) socialRun.push(social);
+      continue;
+    }
+    if (line) flushSocial();
+    const bullet = line.match(/^[-*•]\s+(.*)$/);
+    const numbered = line.match(/^\d+[.)]\s+(.*)$/);
+    if (bullet || numbered) {
+      const ordered = !!numbered;
+      if (list && list.ordered !== ordered) flush();
+      list ??= { ordered, items: [] };
+      list.items.push((bullet ?? numbered)![1]);
+      continue;
+    }
+    flush();
+    if (!line) continue;
+    const heading = line.match(/^#{1,6}\s+(.*)$/);
+    blocks.push(
+      <p key={`p${blocks.length}`} className={cn("[&:not(:first-child)]:mt-2", heading && "font-semibold text-foreground")}>
+        <Inline text={heading ? heading[1] : line} />
+      </p>,
+    );
+  }
+  flush();
+  flushSocial();
+  return <>{blocks}</>;
 }
 
 function TypingIndicator() {
@@ -222,9 +382,10 @@ export function ChatWidget() {
     const replyId = push({ role: "assistant", content: "", thinking: true, streaming: true });
 
     try {
-      const local = SUGGESTED.find((s) => s.question === text);
+      const local = LOCAL_ANSWERS.find((s) => s.question === text);
       if (local) {
         await typeOut(replyId, local.answer, controller.signal);
+        patch(replyId, { handoff: !!local.handoff, followUps: local.followUps });
         return;
       }
 
@@ -308,7 +469,11 @@ export function ChatWidget() {
     [...messages].reverse().find((m) => m.role === "user" && m.id < beforeId)?.content;
 
   const asked = new Set(messages.filter((m) => m.role === "user").map((m) => m.content));
-  const followUps = SUGGESTED.filter((s) => !asked.has(s.question)).slice(0, 3);
+  // Prefer the follow-ups tied to the last answer; otherwise fall back to the starters.
+  const contextual = (messages[messages.length - 1]?.followUps ?? []).filter((q) => !asked.has(q));
+  const followUps = (
+    contextual.length ? contextual : SUGGESTED.map((s) => s.question).filter((q) => !asked.has(q))
+  ).slice(0, 3);
   const last = messages[messages.length - 1];
   const showFollowUps = !busy && last?.role === "assistant" && !last.streaming && followUps.length > 0;
   const empty = messages.length === 0;
@@ -540,27 +705,31 @@ export function ChatWidget() {
                     className="matte-ring rounded-full"
                   >
                     <span className="block rounded-full bg-background p-1">
-                      <Avatar className="h-20 w-20" sizes="80px" />
+                      <Avatar className="h-16 w-16" sizes="64px" />
                     </span>
                   </motion.div>
-                  <motion.h3 variants={rise} className="mt-5 font-heading text-2xl font-medium tracking-[-0.03em]">
+                  <motion.h3 variants={rise} className="mt-4 font-heading text-2xl font-medium tracking-[-0.03em]">
                     Hi, I&apos;m <span className="font-serif font-normal italic text-primary">{BOT}</span>
                   </motion.h3>
                   <motion.p variants={rise} className="mt-2 max-w-[17rem] text-sm leading-relaxed text-muted-foreground">
                     Matthew&apos;s AI assistant. Ask about his skills, projects or availability — I&apos;ll connect you to
                     him for the rest.
                   </motion.p>
-                  <div className="mt-6 grid w-full grid-cols-2 gap-2">
-                    {SUGGESTED.map((s) => (
+                  <div className="mt-5 grid w-full grid-cols-2 gap-2">
+                    {SUGGESTED.map((s, i) => (
                       <motion.button
                         key={s.question}
                         type="button"
                         onClick={() => void ask(s.question)}
                         variants={rise}
-                        className="press group rounded-2xl border border-border bg-card px-3 py-3 text-left text-[0.8125rem] leading-snug text-muted-foreground transition-colors duration-200 hover:border-primary/40 hover:text-foreground cursor-pointer"
+                        className={cn(
+                          "press group flex items-start gap-2 rounded-2xl border border-border bg-card px-3 py-2.5 text-left text-[0.8125rem] leading-snug text-muted-foreground transition-colors duration-200 hover:border-primary/40 hover:text-foreground cursor-pointer",
+                          // An odd last starter spans the full row so the grid stays even.
+                          i === SUGGESTED.length - 1 && SUGGESTED.length % 2 === 1 && "col-span-2",
+                        )}
                       >
                         <ArrowUpRight
-                          className="mb-1.5 h-3.5 w-3.5 text-primary transition-transform duration-300 ease-out-strong group-hover:-translate-y-px group-hover:translate-x-px"
+                          className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary transition-transform duration-300 ease-out-strong group-hover:-translate-y-px group-hover:translate-x-px"
                           strokeWidth={1.75}
                         />
                         {s.question}
@@ -588,11 +757,11 @@ export function ChatWidget() {
                         <div className="flex min-w-0 max-w-[82%] flex-col items-start">
                           <div
                             className={cn(
-                              "whitespace-pre-wrap rounded-[1.25rem] rounded-bl-md border border-border bg-card px-4 py-2.5 text-[0.875rem] leading-relaxed text-foreground",
+                              "rounded-[1.25rem] rounded-bl-md border border-border bg-card px-4 py-2.5 text-[0.875rem] leading-relaxed text-foreground",
                               m.streaming && !m.thinking && "stream-caret",
                             )}
                           >
-                            {m.thinking ? <TypingIndicator /> : <Linkified text={m.content} />}
+                            {m.thinking ? <TypingIndicator /> : <RichText text={m.content} />}
                           </div>
                           {m.thinking && <span className="mt-1.5 pl-1 text-[0.6875rem] text-muted-foreground">{BOT} is typing…</span>}
                           <AnimatePresence>
@@ -632,14 +801,14 @@ export function ChatWidget() {
                         role="group"
                         aria-label="Suggested follow-ups"
                       >
-                        {followUps.map((s) => (
+                        {followUps.map((q) => (
                           <button
-                            key={s.question}
+                            key={q}
                             type="button"
-                            onClick={() => void ask(s.question)}
+                            onClick={() => void ask(q)}
                             className="press rounded-full border border-border px-3 py-1.5 text-xs text-muted-foreground transition-colors duration-200 hover:border-primary/40 hover:text-foreground cursor-pointer"
                           >
-                            {s.question}
+                            {q}
                           </button>
                         ))}
                       </motion.div>

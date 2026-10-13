@@ -1,5 +1,13 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+// after() needs a real request scope; run the callback once the test drains the stream.
+const afterQueue: Array<() => unknown> = [];
+vi.mock("next/server", () => ({ after: (fn: () => unknown) => void afterQueue.push(fn) }));
+
 import { POST } from "./route";
+
+const flushAfter = async () => {
+  while (afterQueue.length) await afterQueue.shift()!();
+};
 
 const req = (body: unknown, ip = "1.1.1.1") =>
   new Request("http://localhost/api/chat", {
@@ -47,5 +55,22 @@ describe("POST /api/chat", () => {
     const res = await POST(req({ messages: [{ role: "user", content: "Does he know SQL?" }] }, "3.3.3.3"));
     expect(res.status).toBe(200);
     expect(await res.text()).toBe("He knows PostgreSQL.");
+  });
+
+  it("emails Matthew when Matte hands a question off", async () => {
+    vi.stubEnv("GROQ_API_KEY", "test");
+    vi.stubEnv("RESEND_API_KEY", "re_test");
+    const sse = 'data: {"choices":[{"delta":{"content":"Best asked directly. [[HANDOFF]]"}}]}\n\ndata: [DONE]\n\n';
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(new Response(sse, { status: 200 }))
+      .mockResolvedValueOnce(new Response("{}", { status: 200 }));
+    const res = await POST(req({ messages: [{ role: "user", content: "What is his salary?" }] }, "4.4.4.4"));
+    await res.text();
+    await flushAfter();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    const [url, init] = fetchMock.mock.calls[1];
+    expect(url).toBe("https://api.resend.com/emails");
+    expect(JSON.parse(String((init as RequestInit).body)).subject).toContain("What is his salary?");
   });
 });

@@ -1,4 +1,7 @@
-import { buildSystemPrompt } from "@/lib/assistant/knowledge";
+import { after } from "next/server";
+import { buildSystemPrompt, HANDOFF, parseReply } from "@/lib/assistant/knowledge";
+import { profile } from "@/lib/data";
+import { escapeHtml } from "@/lib/contact-email";
 import { clientIp, createRateLimiter } from "@/lib/rate-limit";
 
 /*
@@ -16,6 +19,44 @@ const MAX_CHARS = 500;
 const isLimited = createRateLimiter({ limit: 15, windowMs: 10 * 60 * 1000 });
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
+
+/**
+ * Emails Matthew when Matte couldn't answer (via the contact form's Resend
+ * setup). Off when MATTE_NOTIFY=off or Resend isn't configured.
+ */
+async function notifyHandoff(question: string, reply: string) {
+  const key = process.env.RESEND_API_KEY;
+  if (!key || process.env.MATTE_NOTIFY === "off") return;
+  try {
+    await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from: process.env.CONTACT_FROM_EMAIL || '"ARANDIA.DEV" <onboarding@resend.dev>',
+        to: [process.env.CONTACT_TO_EMAIL || profile.email],
+        subject: `Matte handed off: ${question.slice(0, 80)}`,
+        text: `A visitor asked Matte something it couldn't fully answer.
+
+Question:
+${question}
+
+Matte replied:
+${reply}
+
+If it's a common question, add the answer to assistantFaq in src/lib/data.ts.`,
+        html: `<div style="font-family:system-ui,sans-serif;font-size:14px;line-height:1.6;color:#161614">
+<p style="margin:0 0 12px;color:#76756e;font-size:12px;letter-spacing:1px;text-transform:uppercase">Matte · handoff</p>
+<p style="margin:0 0 4px;color:#76756e">Question</p>
+<p style="margin:0 0 16px;font-size:16px"><strong>${escapeHtml(question)}</strong></p>
+<p style="margin:0 0 4px;color:#76756e">Matte replied</p>
+<p style="margin:0 0 16px">${escapeHtml(reply)}</p>
+<p style="margin:0;color:#76756e;font-size:12px">Common question? Add it to <code>assistantFaq</code> in src/lib/data.ts.</p></div>`,
+      }),
+    });
+  } catch (err) {
+    console.error("Matte handoff notification failed:", err);
+  }
+}
 
 function parseMessages(body: unknown): ChatMessage[] | null {
   if (!body || typeof body !== "object" || !Array.isArray((body as { messages?: unknown }).messages)) return null;
@@ -92,6 +133,7 @@ export async function POST(request: Request) {
   const decoder = new TextDecoder();
   const encoder = new TextEncoder();
   let buffer = "";
+  let answer = "";
   const stream = upstream.body.pipeThrough(
     new TransformStream<Uint8Array, Uint8Array>({
       transform(chunk, controller) {
@@ -103,7 +145,10 @@ export async function POST(request: Request) {
           if (!data || data === "[DONE]" || !line.startsWith("data:")) continue;
           try {
             const delta = JSON.parse(data)?.choices?.[0]?.delta?.content;
-            if (typeof delta === "string" && delta) controller.enqueue(encoder.encode(delta));
+            if (typeof delta === "string" && delta) {
+              answer += delta;
+              controller.enqueue(encoder.encode(delta));
+            }
           } catch {
             // ignore keep-alives / partial frames
           }
@@ -111,6 +156,13 @@ export async function POST(request: Request) {
       },
     }),
   );
+
+  // Once the reply has been sent, quietly tell Matthew about questions Matte
+  // had to hand off — they're either gaps to fill in data.ts or warm leads.
+  const question = messages[messages.length - 1].content;
+  after(() => {
+    if (answer.includes(HANDOFF)) return notifyHandoff(question, parseReply(answer).text);
+  });
 
   return new Response(stream, {
     headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" },

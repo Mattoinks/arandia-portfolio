@@ -12,6 +12,8 @@ import {
   GraduationCap,
   Hash,
   Copy,
+  Milestone,
+  FileText,
   Moon,
   Search,
   ShieldCheck,
@@ -20,6 +22,7 @@ import {
 } from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "@/components/icons/brand-icons";
 import { profile, socials } from "@/lib/data";
+import { publishedNotes } from "@/lib/notes";
 import { lockScroll, scrollToTarget } from "@/lib/smooth-scroll";
 import { OPEN_ASSISTANT_EVENT } from "@/lib/contact-prefill";
 import { cn } from "@/lib/utils";
@@ -100,10 +103,11 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
       { id: "top", group: "Navigate", label: "Home", icon: <Hash className={ICON} />, run: go("#top") },
       { id: "skills", group: "Navigate", index: "01", label: "Capabilities", icon: <Sparkles className={ICON} />, run: go("#skills") },
       { id: "work", group: "Navigate", index: "02", label: "Selected work", icon: <Briefcase className={ICON} />, run: go("#work") },
-      { id: "certs", group: "Navigate", index: "03", label: "Certifications", icon: <ShieldCheck className={ICON} />, run: go("#certifications") },
-      { id: "edu", group: "Navigate", index: "04", label: "Education", icon: <GraduationCap className={ICON} />, run: go("#education") },
-      { id: "about", group: "Navigate", index: "05", label: "About", icon: <User className={ICON} />, run: go("#about") },
-      { id: "contact", group: "Navigate", index: "06", label: "Contact", icon: <AtSign className={ICON} />, run: go("#contact") },
+      { id: "exp", group: "Navigate", index: "03", label: "Experience", icon: <Milestone className={ICON} />, run: go("#experience") },
+      { id: "certs", group: "Navigate", index: "04", label: "Certifications", icon: <ShieldCheck className={ICON} />, run: go("#certifications") },
+      { id: "edu", group: "Navigate", index: "05", label: "Education", icon: <GraduationCap className={ICON} />, run: go("#education") },
+      { id: "about", group: "Navigate", index: "06", label: "About", icon: <User className={ICON} />, run: go("#about") },
+      { id: "contact", group: "Navigate", index: "07", label: "Contact", icon: <AtSign className={ICON} />, run: go("#contact") },
       {
         id: "assistant",
         group: "Actions",
@@ -126,6 +130,32 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
             .writeText(profile.email)
             .then(() => setToast("Email copied"))
             .catch(() => (window.location.href = `mailto:${profile.email}`));
+        },
+      },
+      ...(publishedNotes.length
+        ? [
+            {
+              id: "notes",
+              group: "Actions" as const,
+              label: "Read notes",
+              hint: `${publishedNotes.length} post${publishedNotes.length > 1 ? "s" : ""}`,
+              icon: <FileText className={ICON} />,
+              run: () => {
+                onClose();
+                router.push("/notes");
+              },
+            },
+          ]
+        : []),
+      {
+        id: "resume-page",
+        group: "Actions",
+        label: "View resume online",
+        hint: "/resume",
+        icon: <FileText className={ICON} />,
+        run: () => {
+          onClose();
+          router.push("/resume");
         },
       },
       {

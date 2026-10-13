@@ -25,3 +25,4 @@ export function XIcon(props: SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
