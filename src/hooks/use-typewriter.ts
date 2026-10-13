@@ -9,6 +9,8 @@ interface UseTypewriterOptions {
   pauseDuration?: number;
   /** When false, types the first word once and stops instead of looping/deleting. */
   loop?: boolean;
+  /** Pauses typing while false (e.g. scrolled off-screen) so it doesn't re-render for nothing. */
+  active?: boolean;
 }
 
 export function useTypewriter({
@@ -17,6 +19,7 @@ export function useTypewriter({
   deletingSpeed = 30,
   pauseDuration = 1800,
   loop = true,
+  active = true,
 }: UseTypewriterOptions) {
   const [text, setText] = useState("");
   const [wordIndex, setWordIndex] = useState(0);
@@ -34,7 +37,7 @@ export function useTypewriter({
   }, []);
 
   useEffect(() => {
-    if (reducedMotion) return;
+    if (reducedMotion || !active) return;
 
     const current = words[wordIndex % words.length];
     let timeout: ReturnType<typeof setTimeout>;
@@ -53,7 +56,7 @@ export function useTypewriter({
     }
 
     return () => clearTimeout(timeout);
-  }, [text, deleting, wordIndex, words, typingSpeed, deletingSpeed, pauseDuration, reducedMotion, loop]);
+  }, [text, deleting, wordIndex, words, typingSpeed, deletingSpeed, pauseDuration, reducedMotion, loop, active]);
 
   return text;
 }

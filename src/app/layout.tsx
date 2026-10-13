@@ -4,6 +4,7 @@ import { MotionConfig } from "framer-motion";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Backdrop } from "@/components/backdrop";
+import { OffscreenIdle } from "@/components/offscreen-idle";
 import { SmoothScroll } from "@/components/smooth-scroll";
 import { ClickSpark } from "@/components/reactbits/click-spark";
 import { ThemeColorSync } from "@/components/theme-color-sync";
@@ -123,6 +124,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange={false}>
           <MotionConfig reducedMotion="user">
             <Backdrop />
+            <OffscreenIdle />
             <SmoothScroll />
             <ClickSpark />
             <ThemeColorSync />

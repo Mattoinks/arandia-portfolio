@@ -6,10 +6,13 @@
   frame over a plain background, for no visible gain — the frame is opaque
   instead), lucide icon instead of @hugeicons, next/image for the photos, the
   dark palette retinted to the site's warm neutrals, and the frame/tile radii
-  matched to the site's double-bezel cards.
+  matched to the site's double-bezel cards. On touch screens (no hover) the
+  card is drawn still: no tilt, shine, glare or foil layers — those only react
+  to a mouse, and their blend-mode and 3D layers made scrolling past the card
+  heavy on phones.
 */
 
-import { memo, useEffect, useRef, type CSSProperties } from 'react';
+import { memo, useEffect, useRef, useSyncExternalStore, type CSSProperties } from 'react';
 import Image from 'next/image';
 import { Mail } from 'lucide-react';
 
@@ -222,6 +225,26 @@ const CONTACT =
 const GLARE = `${LAYER} mix-blend-overlay`;
 const RIM = `${LAYER} [box-shadow:inset_0_0_0_1px_var(--pc-frame-edge),inset_0_1px_0_var(--pc-frame-highlight)]`;
 
+const BODY_STILL = BODY.replace(' will-change-transform', '').replace(
+  ' [transform:rotateX(var(--pc-rotate-x))_rotateY(var(--pc-rotate-y))]',
+  ''
+);
+const PHOTO_STILL_STYLE: CSSProperties = { ...PHOTO_STYLE, transform: 'none' };
+
+const NO_HOVER = '(hover: none)';
+const subscribeNoHover = (onChange: () => void) => {
+  const media = window.matchMedia(NO_HOVER);
+  media.addEventListener('change', onChange);
+  return () => media.removeEventListener('change', onChange);
+};
+/** True on touch-first devices. Server and first client render assume a mouse, so hydration matches. */
+const useStill = () =>
+  useSyncExternalStore(
+    subscribeNoHover,
+    () => window.matchMedia(NO_HOVER).matches,
+    () => false
+  );
+
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
 const isDark = (color: string): boolean | null => {
@@ -258,14 +281,20 @@ export const ProfileCard = memo(function ProfileCard({
   className = ''
 }: ProfileCardProps) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const still = useStill();
   const engineRef = useRef<Engine | null>(null);
   const settings = { enableTilt, tiltStrength, parallax, mobileTiltSensitivity, intro };
   const settingsRef = useRef(settings);
-  settingsRef.current = settings;
+  // Declared before the engine effect so it runs first and the engine reads current settings.
+  useEffect(() => {
+    settingsRef.current = settings;
+  });
 
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
+
+    if (still) return;
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const size = { width: root.offsetWidth, height: root.offsetHeight };
@@ -411,7 +440,7 @@ export const ProfileCard = memo(function ProfileCard({
       root.removeEventListener('pointercancel', onUp);
       engineRef.current = null;
     };
-  }, []);
+  }, [still]);
 
   useEffect(() => {
     engineRef.current?.write();
@@ -419,7 +448,7 @@ export const ProfileCard = memo(function ProfileCard({
 
   useEffect(() => {
     const root = rootRef.current;
-    if (!root || !enableMobileTilt) return;
+    if (!root || !enableMobileTilt || still) return;
 
     let listening = false;
     const onOrientation = (event: DeviceOrientationEvent) => {
@@ -450,7 +479,7 @@ export const ProfileCard = memo(function ProfileCard({
       root.removeEventListener('click', onClick);
       window.removeEventListener('deviceorientation', onOrientation);
     };
-  }, [enableMobileTilt]);
+  }, [enableMobileTilt, still]);
 
   const palette: Palette = theme === 'light' ? 'light' : 'dark';
   const foil: Palette = backdropColor ? ((isDark(backdropColor) ?? palette === 'dark') ? 'dark' : 'light') : palette;
@@ -481,15 +510,19 @@ export const ProfileCard = memo(function ProfileCard({
         } as CSSProperties
       }
     >
-      <div className={BODY}>
+      <div className={still ? BODY_STILL : BODY}>
         <div className={TILE}>
-          <span className={LAYER} style={SHEEN_STYLE} />
-          <span className={HOLO} style={HOLO_STYLE}>
-            <span className={HOLO_LAYER} style={GLOW_STYLE} />
-            <span className={HOLO_LAYER} style={SHIFT_STYLE} />
-          </span>
+          {!still && (
+            <>
+              <span className={LAYER} style={SHEEN_STYLE} />
+              <span className={HOLO} style={HOLO_STYLE}>
+                <span className={HOLO_LAYER} style={GLOW_STYLE} />
+                <span className={HOLO_LAYER} style={SHIFT_STYLE} />
+              </span>
+            </>
+          )}
           {avatarUrl && (
-            <Image className={PHOTO} style={PHOTO_STYLE} src={avatarUrl} alt={name || ''} width={680} height={850} sizes="340px" loading="eager" draggable={false} />
+            <Image className={PHOTO} style={still ? PHOTO_STILL_STYLE : PHOTO_STYLE} src={avatarUrl} alt={name || ''} width={680} height={850} sizes="340px" loading="eager" draggable={false} />
           )}
           {(name || title) && (
             <>
@@ -528,8 +561,12 @@ export const ProfileCard = memo(function ProfileCard({
           </div>
         )}
 
-        <span className={GLARE} style={GLARE_STYLE} />
-        <span className={LAYER} style={SHADE_STYLE} />
+        {!still && (
+          <>
+            <span className={GLARE} style={GLARE_STYLE} />
+            <span className={LAYER} style={SHADE_STYLE} />
+          </>
+        )}
         <span className={RIM} />
       </div>
     </div>

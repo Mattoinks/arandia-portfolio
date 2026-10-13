@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { AnimatePresence, motion, useInView, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { AnimatePresence, motion, useInView, useReducedMotion, useTransform } from "framer-motion";
 import { ArrowDownRight, ArrowUpRight, MapPin } from "lucide-react";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { SplitText } from "@/components/reactbits/split-text";
@@ -12,6 +12,7 @@ import { useTypewriter } from "@/hooks/use-typewriter";
 import { profile, skillGroups } from "@/lib/data";
 import { EASE } from "@/lib/motion";
 import { cn } from "@/lib/utils";
+import { useElementScrollProgress } from "@/hooks/use-element-scroll";
 
 const rise = (delay: number) => ({
   initial: { opacity: 0, y: 20, filter: "blur(6px)" },
@@ -86,9 +87,11 @@ function ToolLoop() {
  * only — not the whole hero with its photo, scroll transforms and split text.
  */
 function Typewriter() {
-  const typed = useTypewriter({ words: profile.taglines });
+  const ref = useRef<HTMLDivElement>(null);
+  const active = useInView(ref);
+  const typed = useTypewriter({ words: profile.taglines, active });
   return (
-    <div className="mt-5 flex h-6 items-center gap-2 font-mono text-sm text-muted-foreground">
+    <div ref={ref} className="mt-5 flex h-6 items-center gap-2 font-mono text-sm text-muted-foreground">
       <span className="text-primary" aria-hidden>
         ~/
       </span>
@@ -173,7 +176,7 @@ function AvailabilityBadge() {
 export function Hero() {
   const heroRef = useRef<HTMLElement>(null);
   const shouldReduceMotion = useReducedMotion();
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const scrollYProgress = useElementScrollProgress(heroRef, ["start start", "end start"]);
   const photoY = useTransform(scrollYProgress, [0, 1], [0, shouldReduceMotion ? 0 : 90]);
   const copyY = useTransform(scrollYProgress, [0, 1], [0, shouldReduceMotion ? 0 : -40]);
 

@@ -80,11 +80,11 @@ export function Navbar() {
     setScrolled(y > 8);
     // Tuck the bar away while reading downward; bring it back on any upward scroll.
     // Link-triggered glides keep the bar in place so it doesn't flicker away mid-jump.
-    if (isProgrammaticScroll()) setHidden(false);
-    else {
-      setHidden(y > 240 && y > prev + 2);
-      if (y < prev - 2) setHidden(false);
-    }
+    // Tiny deltas (the tail of a smooth-scroll glide) leave the state alone, so the
+    // bar can't flicker back in while still moving down.
+    if (isProgrammaticScroll() || y <= 240) setHidden(false);
+    else if (y > prev + 2) setHidden(true);
+    else if (y < prev - 2) setHidden(false);
 
     let current = "#top";
     for (const section of sectionTopsRef.current) {

@@ -7,7 +7,6 @@ import {
   useMotionValue,
   useMotionValueEvent,
   useReducedMotion,
-  useScroll,
   useSpring,
   useTransform,
   type MotionValue,
@@ -17,6 +16,7 @@ import { SectionHeading } from "@/components/ui/section-heading";
 import { experience, type ExperienceEntry } from "@/lib/data";
 import { EASE } from "@/lib/motion";
 import { cn } from "@/lib/utils";
+import { useElementScrollProgress } from "@/hooks/use-element-scroll";
 
 /*
   Scroll-driven timeline: an orange line fills down the rail as you read, a
@@ -28,7 +28,7 @@ function Stop({ item, index }: { item: ExperienceEntry; index: number }) {
   const ref = useRef<HTMLLIElement>(null);
   // Lit once this stop's top has crossed the reading line (45% down the
   // viewport) — stays lit after it scrolls away, un-lights when scrolling back.
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 0.47", "start 0.43"] });
+  const scrollYProgress = useElementScrollProgress(ref, ["start 0.47", "start 0.43"]);
   const [lit, setLit] = useState(false);
   useMotionValueEvent(scrollYProgress, "change", (v) => setLit(v > 0.5));
   const ongoing = item.period === "Ongoing";
@@ -170,7 +170,7 @@ function Rail({ progress, className }: { progress: MotionValue<number>; classNam
 export function Experience() {
   const listRef = useRef<HTMLOListElement>(null);
   const reduce = useReducedMotion();
-  const { scrollYProgress } = useScroll({ target: listRef, offset: ["start 0.45", "end 0.45"] });
+  const scrollYProgress = useElementScrollProgress(listRef, ["start 0.45", "end 0.45"]);
   const smooth = useSpring(scrollYProgress, { stiffness: 140, damping: 30, mass: 0.4 });
   const full = useMotionValue(1);
   const progress = reduce ? full : smooth;

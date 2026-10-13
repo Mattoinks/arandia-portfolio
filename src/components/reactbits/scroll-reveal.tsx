@@ -2,7 +2,7 @@
 
 /*
   Adapted from React Bits — ScrollReveal (MIT, https://reactbits.dev).
-  Changes: driven by framer-motion's useScroll instead of GSAP ScrollTrigger,
+  Changes: driven by a cached framer-motion scroll value instead of GSAP ScrollTrigger,
   so no scroll listener reads layout every frame (ScrollTrigger's did, synced
   to Lenis, and it was the main scroll-jank source). Opacity + a slight
   settle-in rotation only — both compositor-friendly. Screen readers get the
@@ -10,8 +10,9 @@
 */
 
 import { useMemo, useRef } from "react";
-import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
+import { motion, useReducedMotion, useTransform, type MotionValue } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useElementScrollProgress } from "@/hooks/use-element-scroll";
 
 interface ScrollRevealProps {
   children: string;
@@ -54,7 +55,7 @@ export function ScrollReveal({
 }: ScrollRevealProps) {
   const ref = useRef<HTMLParagraphElement>(null);
   const reduce = useReducedMotion();
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 0.85", "end 0.55"] });
+  const scrollYProgress = useElementScrollProgress(ref, ["start 0.85", "end 0.55"]);
   const rotate = useTransform(scrollYProgress, [0, 1], [reduce ? 0 : baseRotation, 0]);
 
   const tokens = useMemo(() => {
