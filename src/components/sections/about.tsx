@@ -4,7 +4,7 @@ import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { motion } from "framer-motion";
-import { ArrowDownToLine, ArrowUpRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { ProfileCard } from "@/components/reactbits/profile-card";
 import { ScrollReveal } from "@/components/reactbits/scroll-reveal";
 import { scrollToTarget } from "@/lib/smooth-scroll";
@@ -78,19 +78,10 @@ export function About() {
 
           <motion.p variants={fadeUp} className="mt-10 text-lg text-muted-foreground">
             Want the full picture?{" "}
-            <a
-              href={profile.resumeUrl}
-              download
-              className="link-underline inline-flex items-center gap-1 pb-0.5 font-medium text-foreground"
-            >
-              Download my resume
-              <ArrowDownToLine className="h-4 w-4" strokeWidth={1.5} aria-hidden />
-            </a>{" "}
-            or{" "}
             <Link href="/resume" className="link-underline inline-flex items-center gap-1 pb-0.5 font-medium text-foreground">
-              view it online
+              View my resume
+              <ArrowUpRight className="h-4 w-4" strokeWidth={1.5} aria-hidden />
             </Link>
-            .
           </motion.p>
 
           <motion.div variants={fadeUp} className="mt-16">

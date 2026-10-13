@@ -209,7 +209,7 @@ export const LOCAL_ANSWERS: Starter[] = [
   },
   {
     question: "Can I see his resume?",
-    answer: "Yes — view it online at /resume, or download the PDF from the About section.",
+    answer: "Yes — view it online at /resume, where you can also download the PDF.",
     followUps: ["How can I reach him?", "What has he built?"],
   },
 ];
