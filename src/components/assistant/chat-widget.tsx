@@ -41,7 +41,7 @@ function Avatar({ className, sizes, eager }: { className?: string; sizes: string
   return (
     <span className={cn("relative block shrink-0 overflow-hidden rounded-full bg-primary", className)}>
       <Image
-        src="/assets/avatar/assistant-icon-v2.webp"
+        src="/assets/avatar/assistant-icon-v4.webp"
         alt=""
         fill
         sizes={sizes}

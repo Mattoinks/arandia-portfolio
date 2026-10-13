@@ -86,13 +86,13 @@ function Cover({ project }: { project: Project }) {
 function GalleryShot({ shot }: { shot: ProjectShot }) {
   if (shot.kind === "mobile") {
     return (
-      <figure className="flex flex-col items-center gap-4">
-        <div className="w-[16.25rem] rounded-[2.75rem] border-[7px] border-foreground/10 bg-background p-1 shadow-[0_32px_64px_-32px_rgb(var(--shadow-tint)/0.6)] sm:w-[18.75rem]">
+      <figure className="flex w-[16.25rem] flex-col items-center gap-4">
+        <div className="w-full rounded-[2.75rem] border-[7px] border-foreground/10 bg-background p-1 shadow-[0_32px_64px_-32px_rgb(var(--shadow-tint)/0.6)]">
           <div className="relative aspect-[415/852] overflow-hidden rounded-[2.2rem]">
             <Image src={shot.src} alt={shot.alt} fill sizes="300px" className="object-cover object-top" />
           </div>
         </div>
-        <figcaption className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground">
+        <figcaption className="text-balance text-center font-mono leading-relaxed text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground">
           {shot.alt}
         </figcaption>
       </figure>
@@ -279,7 +279,7 @@ export function ProjectDetail({ project, index, total, prev, next }: ProjectDeta
                 whileInView="show"
                 viewport={viewport}
                 variants={staggerContainer}
-                className="flex flex-wrap items-end justify-center gap-12 rounded-[2rem] border border-border bg-[radial-gradient(60%_60%_at_50%_100%,var(--glow),transparent)] px-6 py-14 sm:py-20"
+                className="flex flex-wrap items-start justify-center gap-x-8 gap-y-14 rounded-[2rem] border border-border bg-[radial-gradient(60%_60%_at_50%_100%,var(--glow),transparent)] px-6 py-14 sm:py-20"
               >
                 {project.gallery
                   .filter((shot) => shot.kind === "mobile")

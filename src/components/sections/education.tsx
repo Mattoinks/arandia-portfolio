@@ -2,14 +2,17 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Award } from "lucide-react";
+import { Medal, Trophy } from "lucide-react";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { education } from "@/lib/data";
 import { EASE, fadeUp, staggerContainer, viewport } from "@/lib/motion";
 
 export function Education() {
   return (
-    <section id="education" className="relative mx-auto max-w-7xl px-6 py-14 sm:px-10 sm:py-16 lg:py-20">
+    <section
+      id="education"
+      className="relative mx-auto max-w-7xl px-6 py-14 sm:px-10 sm:py-16 lg:py-20"
+    >
       <SectionHeading
         index="05"
         eyebrow="Education"
@@ -41,7 +44,16 @@ export function Education() {
                 <motion.div
                   variants={{
                     hidden: { opacity: 0, scale: 0.85, rotate: -6 },
-                    show: { opacity: 1, scale: 1, rotate: 0, transition: { type: "spring", duration: 0.9, bounce: 0.3 } },
+                    show: {
+                      opacity: 1,
+                      scale: 1,
+                      rotate: 0,
+                      transition: {
+                        type: "spring",
+                        duration: 0.9,
+                        bounce: 0.3,
+                      },
+                    },
                   }}
                   className="group rounded-[1.75rem] bg-foreground/[0.025] p-1.5 ring-1 ring-border dark:bg-white/[0.02]"
                 >
@@ -58,7 +70,10 @@ export function Education() {
                   </div>
                 </motion.div>
               )}
-              <motion.p variants={fadeUp} className="font-mono text-sm text-muted-foreground tabular">
+              <motion.p
+                variants={fadeUp}
+                className="font-mono text-sm text-muted-foreground tabular"
+              >
                 {entry.period}
               </motion.p>
             </div>
@@ -70,32 +85,55 @@ export function Education() {
               >
                 {entry.institution}
               </motion.h3>
-              <motion.p variants={fadeUp} className="mt-4 max-w-2xl text-lg text-foreground">
+              <motion.p
+                variants={fadeUp}
+                className="mt-4 max-w-2xl text-lg text-foreground"
+              >
                 {entry.degree}
               </motion.p>
-              {entry.description && (
-                <motion.p
-                  variants={fadeUp}
-                  className="mt-4 max-w-2xl text-pretty text-[0.9375rem] leading-relaxed text-muted-foreground"
-                >
-                  {entry.description}
-                </motion.p>
-              )}
-              {entry.highlights && entry.highlights.length > 0 && (
-                <motion.ul variants={fadeUp} className="mt-8 flex flex-wrap gap-3">
-                  {entry.highlights.map((highlight) => (
-                    <li
-                      key={highlight}
-                      className="inline-flex items-center gap-2 rounded-full border border-border bg-card py-2 pl-2.5 pr-4 text-sm"
-                    >
-                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/12 text-primary">
-                        <Award className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden />
-                      </span>
-                      {highlight}
-                    </li>
-                  ))}
-                </motion.ul>
-              )}
+              <div className="mt-10 grid gap-10 md:grid-cols-2 md:gap-12">
+                {entry.description && (
+                  <motion.div variants={fadeUp}>
+                    <p className="mb-4 font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground">
+                      Overview
+                    </p>
+                    <p className="text-pretty text-[0.9375rem] leading-relaxed text-muted-foreground">
+                      {entry.description}
+                    </p>
+                  </motion.div>
+                )}
+                {entry.highlights && entry.highlights.length > 0 && (
+                  <motion.div variants={fadeUp}>
+                    <p className="mb-4 font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground">
+                      Honors
+                    </p>
+                    <ul className="divide-y divide-border border-y border-border">
+                      {entry.highlights.map((highlight) => {
+                        const award = /best|award|winner/i.test(highlight);
+                        const Icon = award ? Trophy : Medal;
+                        return (
+                          <li
+                            key={highlight}
+                            className="flex items-center gap-4 py-4"
+                          >
+                            <Icon
+                              className="h-4 w-4 shrink-0 text-primary"
+                              strokeWidth={1.5}
+                              aria-hidden
+                            />
+                            <span className="font-heading text-lg font-medium tracking-[-0.02em]">
+                              {highlight}
+                            </span>
+                            <span className="ml-auto hidden font-mono text-[0.625rem] uppercase tracking-[0.14em] text-muted-foreground sm:inline">
+                              {award ? "Award" : "Academic honor"}
+                            </span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </motion.div>
+                )}
+              </div>
             </div>
           </motion.li>
         ))}

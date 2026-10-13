@@ -4,7 +4,7 @@ import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { motion } from "framer-motion";
-import { ArrowDownToLine, Code2, FlaskConical, Sparkles } from "lucide-react";
+import { ArrowDownToLine, ArrowUpRight } from "lucide-react";
 import { ProfileCard } from "@/components/reactbits/profile-card";
 import { ScrollReveal } from "@/components/reactbits/scroll-reveal";
 import { scrollToTarget } from "@/lib/smooth-scroll";
@@ -13,8 +13,6 @@ import { TextReveal } from "@/components/ui/text-reveal";
 import { Eyebrow } from "@/components/ui/section-heading";
 import { profile } from "@/lib/data";
 import { fadeUp, staggerContainer, viewport } from "@/lib/motion";
-
-const CURRENTLY_ICONS = { code: Code2, flask: FlaskConical, rocket: Sparkles } as const;
 
 export function About() {
   const { resolvedTheme } = useTheme();
@@ -95,41 +93,59 @@ export function About() {
             .
           </motion.p>
 
-          <motion.div variants={fadeUp} className="mt-14">
-            <p className="mb-5 font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground">
-              Currently
-            </p>
-            <ul className="grid gap-3 sm:grid-cols-3">
+          <motion.div variants={fadeUp} className="mt-16">
+            <p className="mb-4 font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground">Currently</p>
+            <ul className="divide-y divide-border border-y border-border">
               {profile.currently.map((item) => {
-                const Icon = CURRENTLY_ICONS[item.icon as keyof typeof CURRENTLY_ICONS];
-                return (
-                  <li
-                    key={item.label}
-                    className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4"
-                  >
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-                      <Icon className="h-4 w-4 text-primary" strokeWidth={1.5} />
+                const body = (
+                  <>
+                    <span className="font-mono text-[0.625rem] uppercase tracking-[0.14em] text-primary sm:pt-1.5">
+                      {item.label}
                     </span>
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium">{item.label}</p>
-                      <p className="truncate text-xs text-muted-foreground">{item.detail}</p>
-                    </div>
+                    <span className="min-w-0">
+                      <span className="block font-heading text-lg font-medium leading-snug tracking-[-0.02em] transition-transform duration-500 ease-out-strong sm:group-hover:translate-x-1">
+                        {item.title}
+                      </span>
+                      <span className="mt-0.5 block text-sm text-muted-foreground">{item.detail}</span>
+                    </span>
+                    {item.href ? (
+                      <ArrowUpRight
+                        className="mt-1.5 h-4 w-4 text-muted-foreground transition-[color,transform] duration-300 ease-out-strong group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-primary"
+                        strokeWidth={1.5}
+                        aria-hidden
+                      />
+                    ) : (
+                      <span />
+                    )}
+                  </>
+                );
+                const row =
+                  "group grid grid-cols-[1fr_auto] gap-x-6 gap-y-1.5 py-5 sm:grid-cols-[7.5rem_1fr_auto] [&>*:first-child]:col-span-2 sm:[&>*:first-child]:col-span-1";
+                return (
+                  <li key={item.label}>
+                    {item.href ? (
+                      <Link href={item.href} className={row}>
+                        {body}
+                      </Link>
+                    ) : (
+                      <div className={row}>{body}</div>
+                    )}
                   </li>
                 );
               })}
             </ul>
           </motion.div>
 
-          <motion.div variants={fadeUp} className="mt-10">
-            <p className="mb-4 font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground">Traits</p>
-            <ul className="flex flex-wrap gap-2">
+          <motion.div variants={fadeUp} className="mt-16">
+            <p className="mb-6 font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground">
+              How I work
+            </p>
+            <ul className="grid gap-x-10 gap-y-8 sm:grid-cols-2">
               {profile.traits.map((trait, i) => (
-                <li
-                  key={trait}
-                  className="inline-flex items-center gap-2.5 rounded-full border border-border bg-card py-2 pl-3 pr-4 text-sm transition-colors duration-300 hover:border-foreground/30"
-                >
-                  <span className="font-mono text-[0.625rem] text-primary tabular">{String(i + 1).padStart(2, "0")}</span>
-                  {trait}
+                <li key={trait.name} className="grid grid-cols-[auto_1fr] items-baseline gap-x-3">
+                  <span className="font-mono text-[0.6875rem] text-primary tabular">{String(i + 1).padStart(2, "0")}</span>
+                  <p className="font-heading text-lg font-medium tracking-[-0.02em]">{trait.name}</p>
+                  <p className="col-start-2 mt-1.5 text-sm leading-relaxed text-muted-foreground">{trait.detail}</p>
                 </li>
               ))}
             </ul>

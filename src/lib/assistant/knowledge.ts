@@ -76,7 +76,8 @@ function facts() {
   return `${profile.name} ("${firstName}"), ${profile.role}. ${profile.location}, GMT+8.
 Age: ${ageOn(profile.birthDate)} (born ${birthdayLabel(profile.birthDate)}).
 Availability: ${profile.greeting}. Work arrangement: ${profile.workArrangement}.
-About: ${profile.bio} Traits: ${profile.traits.join(", ")}.
+About: ${profile.bio} Traits: ${profile.traits.map((t) => t.name).join(", ")}.
+Currently: ${profile.currently.map((c) => `${c.label} ${c.title} (${c.detail})`).join("; ")}.
 Focus: ${capabilities.map((c) => c.caption).join("; ")}.
 EDUCATION
 ${edu}

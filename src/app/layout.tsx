@@ -58,7 +58,7 @@ export const metadata: Metadata = {
     "Full-Stack Developer",
     "IT Professional",
     "Web Development",
-    "Software Testing",
+    "Mobile Development",
     "Portfolio",
   ],
   authors: [{ name: profile.name }],

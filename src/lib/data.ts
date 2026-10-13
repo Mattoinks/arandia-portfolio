@@ -48,12 +48,33 @@ export const profile = {
     { label: "Certificates", value: "2" },
     { label: "BSIT Class of", value: "2027" },
   ],
+  /** What he's working on right now — each row links to its case study when there is one. */
   currently: [
-    { icon: "code", label: "Building", detail: "Web & mobile products" },
-    { icon: "flask", label: "Exploring", detail: "System design & testing" },
-    { icon: "rocket", label: "Learning", detail: "Full-stack engineering" },
+    {
+      label: "Building",
+      title: "SahariPay",
+      detail: "Rental management & payments · Next.js + Expo",
+      href: "/work/sahari-pay",
+    },
+    {
+      label: "Freelancing",
+      title: "RMA automation for Infineon",
+      detail: "Delivery Note processing, 8 → 3 min",
+      href: "/work/infineon",
+    },
+    {
+      label: "Studying",
+      title: "BSIT, Mobile & Web Applications",
+      detail: "National University Dasmariñas · Dean's List",
+    },
   ],
-  traits: ["Problem Solver", "Fast Learner", "Detail-Oriented", "Team Player"],
+  /** How he works — each with a one-line proof from his projects. */
+  traits: [
+    { name: "Problem Solver", detail: "Turns manual, paper or spreadsheet workflows into systems." },
+    { name: "Fast Learner", detail: "Picks up each project's stack — FastAPI, Expo, Supabase." },
+    { name: "Detail-Oriented", detail: "Validation, edge cases and regression checks before shipping." },
+    { name: "Team Player", detail: "Built KALINGA and SignA2Z with capstone teams." },
+  ],
 };
 
 export interface EducationEntry {
@@ -73,7 +94,7 @@ export const education: EducationEntry[] = [
     period: "2023 — 2027",
     logo: "/assets/icons/NU.png",
     description:
-      "Focused on software testing, web development, and digital systems — with hands-on experience building database-driven systems and RFID/QR-based solutions.",
+      "Focused on web and mobile application development — with hands-on experience building full-stack, database-driven systems for real clients and organizations.",
     highlights: ["Dean's List", "Best Capstone Paper and System"],
   },
 ];
@@ -269,7 +290,14 @@ export const projects: Project[] = [
       "A centralized RMA Masterfile Automation System, developed as a freelance project for Infineon Technologies, Singapore, to streamline Delivery Note processing, automate PDF data extraction, and centralize RMA records and lot breakdowns into an organized Excel masterfile. Implements data validation, duplicate detection, and automated record management, along with role-based portals for internal staff and requesters. Built with React, FastAPI, and Supabase PostgreSQL for centralized data management, with Excel export retained for reporting and external use.",
     tags: ["Website"],
     codeUrl: "https://github.com/Mattoinks/Masterfile-Automation-System.git",
-    thumbnail: "/assets/images/projects/INFINEON.png",
+    thumbnail: "/assets/images/projects/infineon/cover.png",
+    gallery: [
+      {
+        src: "/assets/images/projects/infineon/upload.png",
+        alt: "RMA system — uploading Delivery Note PDFs for extraction and validation",
+        kind: "desktop",
+      },
+    ],
     status: "in-progress",
     metrics: [
       { value: "8 → 3 min", label: "Processing time per Delivery Note" },
@@ -294,11 +322,21 @@ export const projects: Project[] = [
     tags: ["Mobile", "Web"],
     liveUrl: "https://bridgesofhope-delta.vercel.app/",
     codeUrl: "https://github.com/dwightangelodecena-cloud/-BridgesOfHope---Backup.git",
-    thumbnail: "/assets/images/projects/KALINGA.png",
+    thumbnail: "/assets/images/projects/kalinga/cover.png",
     gallery: [
       {
-        src: "/assets/images/projects/KALINGAMOB.png",
+        src: "/assets/images/projects/kalinga/mobile-guardian-consent.png",
         alt: "KALINGA on mobile — guardian account consent flow",
+        kind: "mobile",
+      },
+      {
+        src: "/assets/images/projects/kalinga/mobile-services.png",
+        alt: "KALINGA on mobile — care packages with admission and monthly fees",
+        kind: "mobile",
+      },
+      {
+        src: "/assets/images/projects/kalinga/mobile-temporary.png",
+        alt: "KALINGA on mobile — guardian requesting a temporary discharge",
         kind: "mobile",
       },
     ],
@@ -315,16 +353,43 @@ export const projects: Project[] = [
   {
     slug: "sahari-pay",
     name: "SAHARI PAY",
-    tagline: "Mobile & web platform",
+    tagline: "Rental property management & payments",
     role: "Full-Stack Developer · Solo Client Project",
-    description: "Full description coming soon.",
+    description:
+      "SahariPay is a cloud-based rental property management and payment platform built for Philippine landlords and tenants. A Next.js dashboard for property admins and a React Native (Expo) app for tenants share a single Supabase backend, digitizing the whole tenancy lifecycle — tenant onboarding and ID verification, leases with automatic move-in billing, recurring monthly rent invoices, payments via GCash, bank transfer or Palawan with admin verification, maintenance requests, tenant–landlord messaging, viewing and lease-signing appointments, and push notifications. It replaces the usual mix of spreadsheets, chat apps and cash handling, with database triggers, scheduled jobs and Row Level Security keeping billing automatic and every record access-controlled.",
     tags: ["Mobile", "Web"],
     codeUrl: "https://github.com/Mattoinks/sahari-pay.git",
+    thumbnail: "/assets/images/projects/sahari-pay/cover.png",
+    gallery: [
+      {
+        src: "/assets/images/projects/sahari-pay/mobile-home.png",
+        alt: "SahariPay tenant app — home screen with amount due, lease details and quick actions",
+        kind: "mobile",
+      },
+      {
+        src: "/assets/images/projects/sahari-pay/mobile-payment.png",
+        alt: "SahariPay tenant app — submitting a payment with method, transaction code and proof screenshot",
+        kind: "mobile",
+      },
+      {
+        src: "/assets/images/projects/sahari-pay/mobile-chat.png",
+        alt: "SahariPay tenant app — message thread with the landlord",
+        kind: "mobile",
+      },
+      {
+        src: "/assets/images/projects/sahari-pay/mobile-maintenance.png",
+        alt: "SahariPay tenant app — filing a maintenance request by category with an optional photo",
+        kind: "mobile",
+      },
+    ],
     status: "in-progress",
     architecture: {
-      database: "Case study in progress — this client project is still being built.",
-      workflow: "Case study in progress — this client project is still being built.",
-      logic: "Case study in progress — this client project is still being built.",
+      database:
+        "One Supabase PostgreSQL database — 20 tables and 10 enumerated types covering properties, units, leases, itemized invoices, payment submissions, deposit settlements, maintenance, messaging, appointments and notifications. Row Level Security is enabled on every table, driven by two helper functions (is_admin and is_approved), and changes to billing, leases and requests are recorded in a before/after audit log.",
+      workflow:
+        "A tenant signs up in the app and waits for admin approval (or is invited and approved up front) → creating a lease generates the move-in invoice for advance rent and deposit → a daily scheduled job bills rent on each lease's billing day and reminds tenants 3 days before it's due → the tenant pays by GCash, bank transfer or Palawan and uploads proof → the admin approves or rejects it from a live verification queue → the invoice's paid amount and status update automatically and the tenant gets a push notification.",
+      logic:
+        "Logic that must never be skipped lives in the database: triggers recalculate invoice totals and status, fan announcements out to tenants, write the audit log and send Expo push notifications, while pg_cron runs recurring billing. Row Level Security is the real authorization boundary, so an unapproved tenant can't submit a payment, message or request even if the app is bypassed. A shared package gives both apps the same TypeScript types and Zod validation, and Supabase Realtime keeps the dashboard and app in sync without polling.",
     },
   },
   {
@@ -336,7 +401,7 @@ export const projects: Project[] = [
       "SignA2Z is a computer vision-powered application built to break communication barriers between Deaf and hearing individuals by translating American Sign Language (ASL) alphabet signs into text in real time. It runs on both an Android app and a web dashboard, with secure Google sign-in, translation history, and beginner ASL learning modules with text and video tutorials. The project deliberately focused on the alphabet and simple phrases, running on everyday devices without specialized hardware.",
     tags: ["Mobile", "Web", "Computer Vision"],
     codeUrl: "https://github.com/KManipis/SignA2ZRepository.git",
-    thumbnail: "/assets/images/projects/SIGNA2Z.png",
+    thumbnail: "/assets/images/projects/signa2z/cover.png",
     status: "completed",
     architecture: {
       database:
@@ -381,8 +446,12 @@ export const experience: ExperienceEntry[] = [
     org: "SAHARI PAY",
     type: "Client project · Solo",
     period: "Ongoing",
-    summary: "Designing and building a mobile and web platform end-to-end for a client.",
-    points: ["Sole developer across mobile, web and backend"],
+    summary: "Building a rental property management and payment platform for Philippine landlords and tenants, end-to-end.",
+    points: [
+      "Sole developer across the Next.js admin dashboard, Expo tenant app and Supabase backend",
+      "Automated billing: move-in invoices, daily recurring rent and due-date reminders",
+      "Payment verification, maintenance, messaging and push notifications, secured with Row Level Security",
+    ],
     project: "sahari-pay",
   },
   {
