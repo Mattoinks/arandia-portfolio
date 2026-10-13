@@ -41,7 +41,8 @@ const instrumentSerif = Instrument_Serif({
   style: ["normal", "italic"],
 });
 
-const TITLE = "Matthew C. Arandia — Full-Stack Developer & IT Professional";
+// Tabs truncate after ~25 characters, so the name leads.
+const TITLE = "Matthew Arandia — Full-Stack Developer";
 const DESCRIPTION =
   "Portfolio of Matthew C. Arandia, a full-stack developer building mobile, web, and full-stack products.";
 
@@ -49,7 +50,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
     default: TITLE,
-    template: "%s — Matthew C. Arandia",
+    template: "%s · Matthew Arandia",
   },
   description: DESCRIPTION,
   keywords: [
