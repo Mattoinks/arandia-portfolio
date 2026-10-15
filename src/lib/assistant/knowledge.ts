@@ -109,6 +109,8 @@ export function projectContext(slug: string) {
     p.architecture && `Workflow: ${p.architecture.workflow}`,
     p.architecture && `Logic: ${p.architecture.logic}`,
     p.liveUrl && `Live demo: ${p.liveUrl}`,
+    p.android &&
+      `Android app: downloadable APK${p.android.size ? ` (${p.android.size})` : ""} via the QR code or "Download APK" on this page${p.android.playStoreUrl ? `; also on Google Play: ${p.android.playStoreUrl}` : "; Google Play version is in review"}.`,
     p.codeUrl ? `Source code: ${p.codeUrl}` : "Source code: not public.",
     note && `Write-up: "${note.title}" at /notes/${note.slug}`,
   ]

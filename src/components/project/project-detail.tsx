@@ -3,13 +3,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, ArrowUpRight, Database, GitBranch, Layers, Sparkles } from "lucide-react";
+import { ArrowDownToLine, ArrowLeft, ArrowRight, ArrowUpRight, Database, GitBranch, Layers, Smartphone, Sparkles } from "lucide-react";
 import { GithubIcon } from "@/components/icons/brand-icons";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { Surface } from "@/components/ui/surface";
 import { TextReveal } from "@/components/ui/text-reveal";
 import { TiltedCard } from "@/components/reactbits/tilted-card";
 import { MetricTiles } from "@/components/project/metric-tiles";
+import { RoleGallery } from "@/components/project/role-gallery";
 import { blurPlaceholders } from "@/lib/blur-placeholders";
 import { OPEN_ASSISTANT_EVENT } from "@/lib/contact-prefill";
 import { publishedNotes } from "@/lib/notes";
@@ -23,6 +24,85 @@ const STATUS: Record<Project["status"], { label: string; live: boolean }> = {
   "in-progress": { label: "In progress", live: true },
   archived: { label: "Archived", live: false },
 };
+
+/** "Try it on your phone": scan the QR code, or download directly. Phones get just the button. */
+function AndroidDownload({ project, qr }: { project: Project; qr?: string }) {
+  const android = project.android;
+  if (!android) return null;
+  return (
+    <motion.section
+      initial="hidden"
+      whileInView="show"
+      viewport={viewport}
+      variants={fadeUp}
+      aria-labelledby="android-app"
+      className="mt-10 grid gap-8 border-y border-border py-10 lg:grid-cols-12 lg:gap-10"
+    >
+      <div className="lg:col-span-5">
+        <p className="inline-flex items-center gap-2 font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-primary">
+          <Smartphone className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden />
+          Android app
+        </p>
+        <h2 id="android-app" className="mt-3 font-heading text-3xl font-medium tracking-[-0.04em]">
+          Try it on your <span className="font-serif font-normal italic tracking-[-0.02em] text-primary">phone</span>
+        </h2>
+        <p className="mt-3 max-w-md text-[0.9375rem] leading-relaxed text-muted-foreground">
+          {android.playStoreUrl
+            ? `Install ${project.name} from Google Play, or download the APK directly.`
+            : `Install the ${project.name} Android app directly — the Google Play version is in review.`}
+        </p>
+      </div>
+
+      <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center lg:col-span-7 lg:justify-end">
+        {qr && (
+          <>
+            {/* Scanning only makes sense from another screen, so phones skip straight to the link. */}
+            <figure className="hidden shrink-0 flex-col items-center gap-3 sm:flex">
+              <div
+                className="h-[10.5rem] w-[10.5rem] rounded-[1.25rem] bg-white p-3.5 shadow-[0_24px_48px_-28px_rgb(var(--shadow-tint)/0.6)] [&>svg]:h-full [&>svg]:w-full"
+                role="img"
+                aria-label={`QR code to download the ${project.name} Android app`}
+                dangerouslySetInnerHTML={{ __html: qr }}
+              />
+              <figcaption className="font-mono text-[0.625rem] uppercase tracking-[0.14em] text-muted-foreground">
+                Scan with Android
+              </figcaption>
+            </figure>
+            <span
+              aria-hidden
+              className="hidden items-center gap-3 font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground sm:flex sm:flex-col"
+            >
+              <span className="h-10 w-px bg-border" />
+              or
+              <span className="h-10 w-px bg-border" />
+            </span>
+          </>
+        )}
+        <div className="flex flex-col items-start gap-3">
+          <MagneticButton
+            href={`/apk/${project.slug}`}
+            download
+            icon={<ArrowDownToLine className="h-4 w-4" strokeWidth={1.5} />}
+          >
+            Download APK
+          </MagneticButton>
+          <p className="font-mono text-[0.6875rem] text-muted-foreground tabular">
+            {android.size ? `${android.size} · ` : ""}Android APK
+          </p>
+          {android.playStoreUrl ? (
+            <a href={android.playStoreUrl} className="link-underline pb-0.5 text-sm font-medium">
+              Get it on Google Play
+            </a>
+          ) : (
+            <p className="max-w-[16rem] text-xs leading-relaxed text-muted-foreground">
+              Android may ask you to allow installs from your browser — that&apos;s normal for apps outside Google Play.
+            </p>
+          )}
+        </div>
+      </div>
+    </motion.section>
+  );
+}
 
 /** Starter questions on every case study — Matte gets the page's project details with them. */
 const PROJECT_QUESTIONS = ["How does it work?", "What did Matthew build?", "What tech was used?"];
@@ -93,6 +173,8 @@ interface ProjectDetailProps {
   total: number;
   prev: Project;
   next: Project;
+  /** Build-time SVG markup of the QR code for `project.android.apkUrl`. */
+  apkQr?: string;
 }
 
 function Frame({ children, className }: { children: React.ReactNode; className?: string }) {
@@ -119,6 +201,7 @@ function Cover({ project }: { project: Project }) {
                 alt={`${project.name} — interface screenshot`}
                 fill
                 sizes="(max-width: 1280px) 100vw, 1200px"
+                quality={95}
                 className="object-cover object-top"
                 placeholder={blurPlaceholders[project.slug] ? "blur" : "empty"}
                 blurDataURL={blurPlaceholders[project.slug]}
@@ -148,7 +231,7 @@ function GalleryShot({ shot }: { shot: ProjectShot }) {
       <figure className="flex w-[16.25rem] flex-col items-center gap-4">
         <div className="w-full rounded-[2.75rem] border-[7px] border-foreground/10 bg-background p-1 shadow-[0_32px_64px_-32px_rgb(var(--shadow-tint)/0.6)]">
           <div className="relative aspect-[415/852] overflow-hidden rounded-[2.2rem]">
-            <Image src={shot.src} alt={shot.alt} fill sizes="300px" className="object-cover object-top" />
+            <Image src={shot.src} alt={shot.alt} fill sizes="300px" quality={95} className="object-cover object-top" />
           </div>
         </div>
         <figcaption className="text-balance text-center font-mono leading-relaxed text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground">
@@ -161,7 +244,14 @@ function GalleryShot({ shot }: { shot: ProjectShot }) {
     <figure className="flex flex-col gap-4">
       <Frame>
         <div className="relative aspect-video">
-          <Image src={shot.src} alt={shot.alt} fill sizes="(max-width: 1280px) 100vw, 1200px" className="object-cover object-top" />
+          <Image
+            src={shot.src}
+            alt={shot.alt}
+            fill
+            sizes="(max-width: 1280px) 100vw, 1200px"
+            quality={95}
+            className="object-cover object-top"
+          />
         </div>
       </Frame>
       <figcaption className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground">{shot.alt}</figcaption>
@@ -169,7 +259,7 @@ function GalleryShot({ shot }: { shot: ProjectShot }) {
   );
 }
 
-export function ProjectDetail({ project, index, total, prev, next }: ProjectDetailProps) {
+export function ProjectDetail({ project, index, total, prev, next, apkQr }: ProjectDetailProps) {
   const status = STATUS[project.status];
 
   return (
@@ -227,6 +317,11 @@ export function ProjectDetail({ project, index, total, prev, next }: ProjectDeta
             Open site
           </MagneticButton>
         )}
+        {project.android && (
+          <MagneticButton href="#android-app" variant="ghost">
+            <Smartphone className="h-4 w-4" strokeWidth={1.5} /> Android app
+          </MagneticButton>
+        )}
         {project.codeUrl && (
           <MagneticButton href={project.codeUrl} variant="ghost">
             <GithubIcon className="h-4 w-4" /> View source
@@ -250,6 +345,8 @@ export function ProjectDetail({ project, index, total, prev, next }: ProjectDeta
           <MetricTiles metrics={project.metrics} size="lg" className="sm:max-w-2xl" />
         </motion.section>
       )}
+
+      <AndroidDownload project={project} qr={apkQr} />
 
       {/* Overview */}
       <section className="mt-20 grid gap-8 lg:grid-cols-12 lg:gap-10" aria-labelledby="overview">
@@ -311,8 +408,10 @@ export function ProjectDetail({ project, index, total, prev, next }: ProjectDeta
         </section>
       )}
 
-      {/* Gallery */}
-      {project.gallery && project.gallery.length > 0 && (
+      {/* Gallery — split by user role when the project defines roles */}
+      {project.galleryGroups?.length ? (
+        <RoleGallery project={project} />
+      ) : project.gallery && project.gallery.length > 0 && (
         <section className="mt-20" aria-labelledby="gallery">
           <motion.h2
             id="gallery"

@@ -45,6 +45,7 @@ function ProjectVisual({ project }: { project: Project }) {
             alt={`${project.name} — interface screenshot`}
             fill
             sizes="(max-width: 1024px) 100vw, 58vw"
+            quality={95}
             className="object-cover object-top transition-transform duration-700 ease-out-strong group-hover/visual:scale-[1.03]"
             placeholder={blurPlaceholders[project.slug] ? "blur" : "empty"}
             blurDataURL={blurPlaceholders[project.slug]}

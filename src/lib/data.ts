@@ -249,15 +249,37 @@ export interface ProjectArchitecture {
 
 export interface ProjectShot {
   src: string;
+  /** Doubles as the caption when there's no `title`. */
   alt: string;
   /** "mobile" shots render in a phone frame on the project page. */
   kind: "desktop" | "mobile";
+  /** Short label shown above the caption, e.g. "Resident management". */
+  title?: string;
+  /** `ProjectGalleryGroup.id` this shot belongs to (role-based galleries). */
+  group?: string;
+}
+
+/** A tab in a role-based gallery — e.g. one per user role of the system. */
+export interface ProjectGalleryGroup {
+  id: string;
+  label: string;
+  platform: string;
+  description: string;
 }
 
 export interface ProjectMetric {
   /** Big figure, e.g. "8 → 3 min". */
   value: string;
   label: string;
+}
+
+export interface ProjectAndroid {
+  /** Direct download link to the .apk (it should start the download, not open a preview page). */
+  apkUrl: string;
+  /** File size shown next to the link, e.g. "122 MB". */
+  size?: string;
+  /** Google Play listing — when set, it replaces the "in review" note. */
+  playStoreUrl?: string;
 }
 
 export interface Project {
@@ -272,10 +294,14 @@ export interface Project {
   thumbnail?: string;
   /** Extra screenshots for the project page, after the thumbnail. */
   gallery?: ProjectShot[];
+  /** When set, the gallery is split into these tabs (by each shot's `group`). */
+  galleryGroups?: ProjectGalleryGroup[];
   status: "production" | "completed" | "in-progress" | "archived";
   /** Measured outcomes, shown as stat tiles on the work row and case study. */
   metrics?: ProjectMetric[];
   architecture?: ProjectArchitecture;
+  /** Installable Android build, shown as a QR code + download link on the case study. */
+  android?: ProjectAndroid;
 }
 
 export const projects: Project[] = [
@@ -318,24 +344,54 @@ export const projects: Project[] = [
       "Kalinga is a role-based web and Android application designed for Bridges of Hope Imus to streamline facility management and resident recovery tracking by replacing manual, paper-based procedures with a centralized PostgreSQL and ReactJS platform. Built with four dedicated workspaces for Guardians, Nurses, Program Staff, and Administrators, the system unifies admission and discharge request workflows, care documentation, recovery ladder progress monitoring, and visitation scheduling into a single secure ecosystem. By providing role-specific access control, real-time updates, and comprehensive operational dashboards, Kalinga improves administrative efficiency, record reliability, and communication among care providers and resident families.",
     tags: ["Mobile", "Web"],
     liveUrl: "https://bridgesofhope-delta.vercel.app/",
+    android: {
+      // Google Drive file, linked through its direct-download endpoint so it skips Drive's preview page.
+      apkUrl: "https://drive.usercontent.google.com/download?id=1YoSY5knfk1M1EE4Wn9Y-F4Df7P8XpCDf&export=download&confirm=t",
+      size: "122 MB",
+    },
     codeUrl: "https://github.com/dwightangelodecena-cloud/-BridgesOfHope---Backup.git",
     thumbnail: "/assets/images/projects/kalinga/cover.png",
+    galleryGroups: [
+      {
+        id: "admin",
+        label: "Admin",
+        platform: "Web portal",
+        description: "Runs the facility: residents, admissions, visits, family messaging, reports and the public website.",
+      },
+      {
+        id: "nurse",
+        label: "Nurse",
+        platform: "Web portal",
+        description: "Day-to-day care: assigned residents, a clinical overview, schedules and medical reports.",
+      },
+      {
+        id: "family",
+        label: "Family",
+        platform: "Android app",
+        description: "For guardians: follow a loved one's care, request admissions and visits, and read weekly reports.",
+      },
+    ],
     gallery: [
-      {
-        src: "/assets/images/projects/kalinga/mobile-guardian-consent.png",
-        alt: "KALINGA on mobile — guardian account consent flow",
-        kind: "mobile",
-      },
-      {
-        src: "/assets/images/projects/kalinga/mobile-services.png",
-        alt: "KALINGA on mobile — care packages with admission and monthly fees",
-        kind: "mobile",
-      },
-      {
-        src: "/assets/images/projects/kalinga/mobile-temporary.png",
-        alt: "KALINGA on mobile — guardian requesting a temporary discharge",
-        kind: "mobile",
-      },
+      // Admin (all names in these screenshots are made-up test data)
+      { src: "/assets/images/projects/kalinga/admin-web-rmanagements.png", group: "admin", kind: "desktop", title: "Resident management", alt: "Every resident with their concern, clinical status, care team, days stayed and progress." },
+      { src: "/assets/images/projects/kalinga/admin-web-admissions.png", group: "admin", kind: "desktop", title: "Admissions & discharges", alt: "Incoming admissions with room, assigned nurse and program, estimated cost and status." },
+      { src: "/assets/images/projects/kalinga/admin-web-appointments.png", group: "admin", kind: "desktop", title: "Appointments", alt: "Visitation calendar, fixed visiting hours and the queue of family visit requests." },
+      { src: "/assets/images/projects/kalinga/admin-web-messaging.png", group: "admin", kind: "desktop", title: "Communications", alt: "Support chat with families across web and mobile, plus requests, notifications and announcements." },
+      { src: "/assets/images/projects/kalinga/admin-web-reports.png", group: "admin", kind: "desktop", title: "Printable reports", alt: "One-click PDF reports — census, decisions, occupancy, weekly compliance and guardian summaries." },
+      { src: "/assets/images/projects/kalinga/admin-web-hero.png", group: "admin", kind: "desktop", title: "Content management", alt: "Edit and reorder the public website's sections with a live preview." },
+      // Nurse
+      { src: "/assets/images/projects/kalinga/nurse-web-dashboard.png", group: "nurse", kind: "desktop", title: "Nurse dashboard", alt: "Assigned residents, clinical status, top concerns and the monthly admission trend." },
+      { src: "/assets/images/projects/kalinga/nurse-web-calendar.png", group: "nurse", kind: "desktop", title: "Calendar", alt: "Personal and resident agendas, plus report deadlines set by the admin." },
+      { src: "/assets/images/projects/kalinga/nurse-web-reports.png", group: "nurse", kind: "desktop", title: "Medical report", alt: "Medications, vital signs and diet restrictions, with BMI calculated automatically." },
+      // Family (guardian) mobile app
+      { src: "/assets/images/projects/kalinga/mobile-homepage-kalinga.jpg", group: "family", kind: "mobile", title: "Home", alt: "Today's summary of a loved one's care, with quick actions." },
+      { src: "/assets/images/projects/kalinga/mobile-residents-kalinga.jpg", group: "family", kind: "mobile", title: "Resident details", alt: "Care overview and each resident's status and reports." },
+      { src: "/assets/images/projects/kalinga/mobile-wreports-kalinga.jpg", group: "family", kind: "mobile", title: "Weekly reports", alt: "Each resident's weekly progress reports, filtered by week." },
+      { src: "/assets/images/projects/kalinga/mobile-appointments-kalinga.jpg", group: "family", kind: "mobile", title: "Visits", alt: "Book visitation and track each request's status." },
+      { src: "/assets/images/projects/kalinga/mobile-admission-kalinga.jpg", group: "family", kind: "mobile", title: "Admission request", alt: "Submit an admission with the required documents." },
+      { src: "/assets/images/projects/kalinga/mobile-services.png", group: "family", kind: "mobile", title: "Services & fees", alt: "Care packages with admission and monthly fees, shown up front." },
+      { src: "/assets/images/projects/kalinga/mobile-temporary.png", group: "family", kind: "mobile", title: "Temporary discharge", alt: "Request a short leave for a family member." },
+      { src: "/assets/images/projects/kalinga/mobile-guardian-consent.png", group: "family", kind: "mobile", title: "Guardian consent", alt: "Informed consent when a guardian creates their account." },
     ],
     status: "completed",
     architecture: {

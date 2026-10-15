@@ -106,7 +106,8 @@ export function MagneticButton({
   }
 
   if (href) {
-    const isExternal = href.startsWith("http");
+    // Downloads stay in the same tab — a new tab would just sit there empty.
+    const isExternal = href.startsWith("http") && !download;
     return (
       <motion.a
         ref={ref as RefObject<HTMLAnchorElement>}
