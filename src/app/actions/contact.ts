@@ -2,7 +2,8 @@
 
 import { headers } from "next/headers";
 import { profile } from "@/lib/data";
-import { validateContact, type ContactState } from "@/lib/contact";
+import { suggestEmail, validateContact, type ContactState } from "@/lib/contact";
+import { domainAcceptsMail } from "@/lib/email-domain";
 import { renderContactEmail } from "@/lib/contact-email";
 
 /*
@@ -42,6 +43,20 @@ export async function sendMessage(_prev: ContactState, formData: FormData): Prom
   const fieldErrors = validateContact(values);
   if (Object.keys(fieldErrors).length > 0) {
     return { status: "error", message: "A couple of fields need another look.", fieldErrors, values };
+  }
+
+  if (!(await domainAcceptsMail(values.email))) {
+    const suggestion = suggestEmail(values.email);
+    return {
+      status: "error",
+      message: "Please check your email address.",
+      fieldErrors: {
+        email: suggestion
+          ? `That email domain doesn't accept mail — did you mean ${suggestion}?`
+          : "That email domain doesn't seem to exist — check for a typo.",
+      },
+      values,
+    };
   }
 
   const ip = (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";

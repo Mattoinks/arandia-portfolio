@@ -29,3 +29,62 @@ export function validateContact(values: Record<ContactField, string>) {
     errors.message = `Keep it under ${CONTACT_LIMITS.message} characters.`;
   return errors;
 }
+
+/*
+  Typo help for the email field: "juan@gmial.com" → "juan@gmail.com". Only
+  suggests (never changes) and only for close misspellings of big providers,
+  which is where nearly all real typos happen.
+*/
+const KNOWN_DOMAINS = [
+  "gmail.com",
+  "yahoo.com",
+  "yahoo.com.ph",
+  "ymail.com",
+  "outlook.com",
+  "hotmail.com",
+  "live.com",
+  "icloud.com",
+  "me.com",
+  "proton.me",
+  "protonmail.com",
+  // Real providers that sit close to the ones above — listed so they're never "corrected".
+  "mail.com",
+  "email.com",
+  "gmx.com",
+  "aol.com",
+  "zoho.com",
+  "mac.com",
+  "googlemail.com",
+  "live.ca",
+  "yahoo.co.uk",
+  "hotmail.co.uk",
+];
+
+function editDistance(a: string, b: string) {
+  const row = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    let prev = row[0];
+    row[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const cur = row[j];
+      row[j] = Math.min(row[j] + 1, row[j - 1] + 1, prev + (a[i - 1] === b[j - 1] ? 0 : 1));
+      prev = cur;
+    }
+  }
+  return row[b.length];
+}
+
+/** A corrected address when the domain looks like a misspelled big provider, otherwise null. */
+export function suggestEmail(email: string): string | null {
+  const at = email.lastIndexOf("@");
+  if (at < 1) return null;
+  const local = email.slice(0, at);
+  const domain = email.slice(at + 1).toLowerCase();
+  if (domain.length < 4 || KNOWN_DOMAINS.includes(domain)) return null;
+  let best: { domain: string; distance: number } | null = null;
+  for (const known of KNOWN_DOMAINS) {
+    const distance = editDistance(domain, known);
+    if (distance <= 2 && (!best || distance < best.distance)) best = { domain: known, distance };
+  }
+  return best ? `${local}@${best.domain}` : null;
+}

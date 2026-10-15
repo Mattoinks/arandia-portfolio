@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CONTACT_LIMITS, validateContact } from "./contact";
+import { CONTACT_LIMITS, suggestEmail, validateContact } from "./contact";
 
 const valid = { name: "Ana Reyes", email: "ana@studio.ph", subject: "Freelance project", message: "Hi — I'd love to talk about a project." };
 
@@ -26,5 +26,29 @@ describe("validateContact", () => {
   it("asks for a message of reasonable length", () => {
     expect(validateContact({ ...valid, message: "hey" }).message).toBeDefined();
     expect(validateContact({ ...valid, message: "x".repeat(CONTACT_LIMITS.message + 1) }).message).toBeDefined();
+  });
+});
+
+describe("suggestEmail", () => {
+  it("fixes close misspellings of big providers", () => {
+    expect(suggestEmail("juan@gmial.com")).toBe("juan@gmail.com");
+    expect(suggestEmail("juan@gmail.co")).toBe("juan@gmail.com");
+    expect(suggestEmail("juan@yahooo.com")).toBe("juan@yahoo.com");
+    expect(suggestEmail("juan@hotmial.com")).toBe("juan@hotmail.com");
+  });
+
+  it("leaves real addresses alone", () => {
+    expect(suggestEmail("juan@gmail.com")).toBeNull();
+    expect(suggestEmail("juan@mail.com")).toBeNull();
+    expect(suggestEmail("juan@infineon.com")).toBeNull();
+    expect(suggestEmail("not-an-email")).toBeNull();
+  });
+});
+
+describe("suggestEmail — real providers", () => {
+  it("never corrects other real providers", () => {
+    for (const d of ["mac.com", "me.com", "googlemail.com", "live.ca", "gmx.com"]) {
+      expect(suggestEmail(`juan@${d}`)).toBeNull();
+    }
   });
 });

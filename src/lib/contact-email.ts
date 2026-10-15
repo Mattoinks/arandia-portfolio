@@ -4,8 +4,9 @@
  * table layout and inline styles, so that's all this uses — no <style> block,
  * no web fonts, no external images. Every visitor-supplied value is escaped.
  *
- * Visually it mirrors the site's dark theme: warm off-black, one orange
- * accent, double-bezel cards, serif-italic accents and mono labels.
+ * Visually it mirrors the site's dark theme: one 600px warm off-black card
+ * with an orange accent line, mono labels and serif-italic accents. Only the
+ * card is dark, so it sits cleanly in a wide inbox instead of filling it.
  */
 
 export interface ContactEmailInput {
@@ -19,9 +20,7 @@ export interface ContactEmailInput {
 // Mirrors the site's dark theme tokens (globals.css .dark).
 const C = {
   page: "#0c0c0b",
-  shell: "#121210",
   card: "#181715",
-  raised: "#1f1e1b",
   ink: "#f2f1ec",
   muted: "#9c9b93",
   faint: "#76756e",
@@ -56,15 +55,13 @@ function formatManila(date: Date) {
   }).format(date);
 }
 
-const label = (text: string) =>
-  `<div style="font-family:${MONO};font-size:10px;letter-spacing:1.8px;text-transform:uppercase;color:${C.faint};">${text}</div>`;
 
-function metaCell(title: string, valueHtml: string, colspan = 1) {
-  return `
-    <td valign="top" colspan="${colspan}" style="padding:16px 18px;background:${C.raised};border:1px solid ${C.line};border-radius:14px;">
-      ${label(title)}
-      <div style="padding-top:6px;font-family:${FONT};font-size:14px;line-height:20px;color:${C.ink};word-break:break-word;">${valueHtml}</div>
-    </td>`;
+
+/** Compact version for the email's top line, e.g. "Oct 15 · 7:48 PM". */
+function formatManilaShort(date: Date) {
+  const day = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Manila", month: "short", day: "numeric" }).format(date);
+  const time = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Manila", hour: "numeric", minute: "2-digit" }).format(date);
+  return `${day} &middot; ${time}`;
 }
 
 export function renderContactEmail({ name, email, subject, message, sentAt = new Date() }: ContactEmailInput) {
@@ -77,6 +74,8 @@ export function renderContactEmail({ name, email, subject, message, sentAt = new
   const replyHref = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(`Re: ${subject}`)}`;
   const preheader = escapeHtml(`${name}: ${message.replace(/\s+/g, " ").slice(0, 110)}`);
 
+  const initial = escapeHtml((name.trim()[0] || "?").toUpperCase());
+
   const html = `<!doctype html>
 <html lang="en">
 <head>
@@ -86,80 +85,69 @@ export function renderContactEmail({ name, email, subject, message, sentAt = new
 <meta name="supported-color-schemes" content="dark">
 <title>${safeSubject}</title>
 </head>
-<body style="margin:0;padding:0;background:${C.page};-webkit-font-smoothing:antialiased;">
+<body style="margin:0;padding:0;-webkit-font-smoothing:antialiased;">
   <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">${preheader}</div>
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${C.page}" style="background:${C.page};">
+  <!-- Only the 600px card is dark; the mail client's own background shows around it. -->
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
     <tr>
-      <td align="center" style="padding:44px 14px 56px;">
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:580px;">
-
-          <!-- Top bar -->
+      <td align="center" style="padding:24px 8px 32px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;">
           <tr>
-            <td style="padding:0 6px 22px;">
+            <td bgcolor="${C.page}" style="background:${C.page};border:1px solid ${C.line};border-top:3px solid ${C.accent};border-radius:24px;">
+
+              <!-- Header -->
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td style="font-family:${MONO};font-size:12px;letter-spacing:1.8px;text-transform:uppercase;color:${C.ink};">
+                  <td style="padding:22px 32px;border-bottom:1px solid ${C.line};font-family:${MONO};font-size:12px;letter-spacing:1.8px;text-transform:uppercase;color:${C.ink};">
                     Arandia<span style="color:${C.accent};">.</span>dev
                   </td>
-                  <td align="right" style="font-family:${MONO};font-size:10px;letter-spacing:1.8px;text-transform:uppercase;color:${C.muted};">
-                    <span style="color:${C.accent};">&#9679;</span>&nbsp; New inquiry
+                  <td align="right" style="padding:22px 32px;border-bottom:1px solid ${C.line};">
+                    <span style="display:inline-block;border:1px solid ${C.line};border-radius:999px;padding:5px 11px;font-family:${MONO};font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:${C.muted};white-space:nowrap;">
+                      <span style="color:${C.accent};">&#9679;</span>&nbsp; New inquiry
+                    </span>
                   </td>
                 </tr>
               </table>
-            </td>
-          </tr>
 
-          <!-- Double-bezel card: outer tray + inner core -->
-          <tr>
-            <td bgcolor="${C.shell}" style="background:${C.shell};border:1px solid ${C.line};border-radius:28px;padding:6px;">
+              <!-- Body -->
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td bgcolor="${C.card}" style="background:${C.card};border:1px solid ${C.line};border-top:2px solid ${C.accent};border-radius:22px;padding:34px 30px 32px;">
+                  <td style="padding:32px 32px 34px;">
+                    <div style="font-family:${MONO};font-size:10px;letter-spacing:1.8px;text-transform:uppercase;color:${C.faint};">
+                      Contact form &nbsp;&middot;&nbsp; ${formatManilaShort(sentAt)} PHT
+                    </div>
+                    <div style="padding-top:14px;font-family:${FONT};font-size:30px;line-height:36px;font-weight:600;letter-spacing:-0.8px;color:${C.ink};word-break:break-word;">${safeSubject}</div>
 
-                    <!-- Eyebrow pill -->
-                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                    <!-- Sender -->
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-top:22px;">
                       <tr>
-                        <td style="border:1px solid ${C.line};border-radius:999px;padding:5px 12px;font-family:${MONO};font-size:10px;letter-spacing:1.8px;text-transform:uppercase;color:${C.muted};">
-                          <span style="color:${C.accent};">01</span>&nbsp;&nbsp;/&nbsp;&nbsp;Contact form
+                        <td width="44" height="44" align="center" valign="middle" bgcolor="${C.accent}" style="width:44px;height:44px;border-radius:999px;background:${C.accent};font-family:${FONT};font-size:18px;font-weight:700;color:${C.accentInk};">${initial}</td>
+                        <td style="padding-left:14px;">
+                          <div style="font-family:${SERIF};font-style:italic;font-size:20px;line-height:24px;color:${C.ink};">${safeName}</div>
+                          <a href="mailto:${safeEmail}" style="font-family:${MONO};font-size:12px;line-height:20px;color:${C.muted};text-decoration:none;">${safeEmail}</a>
                         </td>
                       </tr>
                     </table>
 
-                    <!-- Headline: sans subject + serif-italic accent, like the site's section titles -->
-                    <div style="padding-top:22px;font-family:${FONT};font-size:32px;line-height:36px;font-weight:600;letter-spacing:-1px;color:${C.ink};">${safeSubject}</div>
-                    <div style="padding-top:6px;font-family:${SERIF};font-style:italic;font-size:24px;line-height:30px;color:${C.accent};">from ${safeName}</div>
-
-                    <!-- Message as an editorial quote -->
-                    <div style="padding-top:30px;">${label("Message")}</div>
-                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:12px;">
+                    <!-- Message -->
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:26px;">
                       <tr>
-                        <td valign="top" width="34" style="width:34px;font-family:${SERIF};font-size:56px;line-height:44px;color:${C.accent};">&ldquo;</td>
-                        <td valign="top" style="font-family:${SERIF};font-size:19px;line-height:30px;color:${C.ink};word-break:break-word;">${safeMessage}</td>
+                        <td bgcolor="${C.card}" style="background:${C.card};border:1px solid ${C.line};border-radius:16px;padding:22px 24px;">
+                          <div style="font-family:${MONO};font-size:10px;letter-spacing:1.8px;text-transform:uppercase;color:${C.faint};">Message</div>
+                          <div style="padding-top:12px;font-family:${SERIF};font-size:18px;line-height:29px;color:${C.ink};word-break:break-word;">${safeMessage}</div>
+                        </td>
                       </tr>
                     </table>
 
-                    <!-- Meta tiles -->
-                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:30px;border-collapse:separate;">
-                      <tr>
-                        ${metaCell("From", safeName)}
-                        <td width="8" style="width:8px;font-size:0;line-height:0;">&nbsp;</td>
-                        ${metaCell("Received", `${escapeHtml(when)} <span style="color:${C.muted};">PHT</span>`)}
-                      </tr>
-                      <tr><td colspan="3" height="8" style="height:8px;font-size:0;line-height:0;">&nbsp;</td></tr>
-                      <tr>
-                        ${metaCell("Reply to", `<a href="mailto:${safeEmail}" style="font-family:${MONO};color:${C.ink};text-decoration:none;">${safeEmail}</a>`, 3)}
-                      </tr>
-                    </table>
-
-                    <!-- CTA: pill with the arrow in its own island, like the site's buttons -->
+                    <!-- Reply -->
                     <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-top:26px;">
                       <tr>
                         <td bgcolor="${C.accent}" style="background:${C.accent};border-radius:999px;">
-                          <a href="${replyHref}" style="display:block;text-decoration:none;padding:6px 6px 6px 24px;">
+                          <a href="${replyHref}" style="display:block;text-decoration:none;padding:6px 6px 6px 22px;">
                             <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                               <tr>
-                                <td style="font-family:${FONT};font-size:14px;font-weight:600;color:${C.accentInk};padding-right:14px;white-space:nowrap;">Reply to ${firstName}</td>
-                                <td width="36" height="36" align="center" valign="middle" style="width:36px;height:36px;border-radius:999px;background:#d55a2d;font-family:${FONT};font-size:15px;font-weight:600;color:${C.accentInk};">&#8599;</td>
+                                <td style="font-family:${FONT};font-size:14px;font-weight:600;color:${C.accentInk};padding-right:12px;white-space:nowrap;">Reply to ${firstName}</td>
+                                <td width="34" height="34" align="center" valign="middle" style="width:34px;height:34px;border-radius:999px;background:#d55a2d;font-family:${FONT};font-size:15px;font-weight:600;color:${C.accentInk};">&#8599;</td>
                               </tr>
                             </table>
                           </a>
@@ -172,19 +160,10 @@ export function renderContactEmail({ name, email, subject, message, sentAt = new
             </td>
           </tr>
 
-          <!-- Footer -->
+          <!-- Footer, outside the card -->
           <tr>
-            <td style="padding:24px 6px 0;">
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid ${C.line};">
-                <tr>
-                  <td style="padding-top:16px;font-family:${FONT};font-size:12px;line-height:18px;color:${C.faint};">
-                    Sent from the contact form on your portfolio. Replying goes straight to ${safeName}.
-                    <div style="padding-top:10px;font-family:${MONO};font-size:10px;letter-spacing:1.8px;text-transform:uppercase;color:${C.faint};">
-                      Arandia<span style="color:${C.accent};">.</span>dev &nbsp;/&nbsp; Dasmari&ntilde;as, PH
-                    </div>
-                  </td>
-                </tr>
-              </table>
+            <td align="center" style="padding:18px 16px 0;font-family:${FONT};font-size:12px;line-height:18px;color:${C.muted};">
+              Sent from the contact form on your portfolio &middot; replying goes straight to ${safeName}
             </td>
           </tr>
         </table>

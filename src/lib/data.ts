@@ -315,7 +315,7 @@ export const projects: Project[] = [
     tagline: "Clinical & rehabilitation management system",
     role: "Full-Stack Developer · Capstone Project",
     description:
-      "Kalinga is a role-based, responsive web application designed for Bridges of Hope Imus to streamline facility management and resident recovery tracking by replacing manual, paper-based procedures with a centralized PostgreSQL and ReactJS platform. Built with four dedicated workspaces for Guardians, Nurses, Program Staff, and Administrators, the system unifies admission and discharge request workflows, care documentation, recovery ladder progress monitoring, and visitation scheduling into a single secure ecosystem. By providing role-specific access control, real-time updates, and comprehensive operational dashboards, Kalinga improves administrative efficiency, record reliability, and communication among care providers and resident families.",
+      "Kalinga is a role-based web and Android application designed for Bridges of Hope Imus to streamline facility management and resident recovery tracking by replacing manual, paper-based procedures with a centralized PostgreSQL and ReactJS platform. Built with four dedicated workspaces for Guardians, Nurses, Program Staff, and Administrators, the system unifies admission and discharge request workflows, care documentation, recovery ladder progress monitoring, and visitation scheduling into a single secure ecosystem. By providing role-specific access control, real-time updates, and comprehensive operational dashboards, Kalinga improves administrative efficiency, record reliability, and communication among care providers and resident families.",
     tags: ["Mobile", "Web"],
     liveUrl: "https://bridgesofhope-delta.vercel.app/",
     codeUrl: "https://github.com/dwightangelodecena-cloud/-BridgesOfHope---Backup.git",
@@ -344,7 +344,7 @@ export const projects: Project[] = [
       workflow:
         "Guardians submit admission, discharge and visitation requests → staff review and act on them → Nurses and Program Staff record care notes and recovery-ladder progress → Administrators oversee everything from operational dashboards, with real-time updates keeping families and care providers in sync.",
       logic:
-        "Four dedicated workspaces, each with role-specific access control, so every user sees only what their role needs. Built with ReactJS on PostgreSQL as a responsive app that works on desktop and mobile.",
+        "Four dedicated workspaces, each with role-specific access control, so every user sees only what their role needs. Built with ReactJS on PostgreSQL, with a responsive web app and an Android app (currently in Google Play review).",
     },
   },
   {
@@ -456,7 +456,7 @@ export const experience: ExperienceEntry[] = [
     org: "KALINGA · Bridges of Hope Imus",
     type: "Capstone · National University Dasmariñas",
     period: "Completed",
-    summary: "Clinical and rehabilitation management system replacing paper-based procedures.",
+    summary: "Clinical and rehabilitation management system — web and Android — replacing paper-based procedures.",
     points: [
       "Four role-based workspaces for Guardians, Nurses, Program Staff and Admins",
       "Admissions, care documentation, recovery tracking and visitation in one system",

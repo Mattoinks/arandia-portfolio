@@ -7,6 +7,7 @@ import { sendMessage } from "@/app/actions/contact";
 import {
   CONTACT_LIMITS,
   SUBJECT_SUGGESTIONS,
+  suggestEmail,
   validateContact,
   type ContactField,
   type ContactState,
@@ -71,6 +72,9 @@ export function ContactForm() {
   const [dismissed, setDismissed] = useState<ContactState | null>(null);
   const [formKey, setFormKey] = useState(0);
   const messageRef = useRef<HTMLTextAreaElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  // "Did you mean …@gmail.com?" — offered when the domain looks like a typo.
+  const [emailSuggestion, setEmailSuggestion] = useState<string | null>(null);
 
   // Drafts handed over by the assistant ("Ask Matthew directly").
   useEffect(() => {
@@ -101,6 +105,7 @@ export function ContactForm() {
       message: String(data.get("message") ?? "").trim(),
     };
     const field = e.currentTarget.name as ContactField;
+    if (field === "email") setEmailSuggestion(values.email ? suggestEmail(values.email) : null);
     if (!values[field]) return; // don't nag about fields the user hasn't started
     setTouched((t) => ({ ...t, [field]: validateContact(values)[field] }));
   };
@@ -196,10 +201,41 @@ export function ContactForm() {
                   defaultValue={state.values?.email}
                   placeholder="you@company.com"
                   aria-invalid={!!errorFor("email")}
-                  aria-describedby={errorFor("email") ? "email-error" : undefined}
+                  aria-describedby={
+                    [errorFor("email") && "email-error", emailSuggestion && "email-suggestion"].filter(Boolean).join(" ") ||
+                    undefined
+                  }
+                  ref={emailRef}
                   onBlur={onBlur}
+                  onChange={() => emailSuggestion && setEmailSuggestion(null)}
                   className={inputClass}
                 />
+                <AnimatePresence initial={false}>
+                  {emailSuggestion && (
+                    <motion.p
+                      id="email-suggestion"
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.2, ease: EASE_OUT }}
+                      className="overflow-hidden pt-2 text-xs text-muted-foreground"
+                    >
+                      Did you mean{" "}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (emailRef.current) emailRef.current.value = emailSuggestion;
+                          setEmailSuggestion(null);
+                          setTouched((t) => ({ ...t, email: undefined }));
+                        }}
+                        className="link-underline cursor-pointer pb-px font-medium text-foreground"
+                      >
+                        {emailSuggestion}
+                      </button>
+                      ?
+                    </motion.p>
+                  )}
+                </AnimatePresence>
               </Field>
             </div>
 
