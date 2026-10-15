@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import Image from "next/image";
-import { AnimatePresence, motion, useInView, useReducedMotion, useTransform } from "framer-motion";
+import { motion, useInView, useReducedMotion, useTransform } from "framer-motion";
 import { ArrowDownRight, ArrowUpRight, MapPin } from "lucide-react";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { SplitText } from "@/components/reactbits/split-text";
@@ -11,7 +11,6 @@ import { PADDED_SKILL_ICONS, SKILL_ICON_SRC } from "@/components/icons/tech-icon
 import { useTypewriter } from "@/hooks/use-typewriter";
 import { profile, skillGroups } from "@/lib/data";
 import { EASE } from "@/lib/motion";
-import { cn } from "@/lib/utils";
 import { useElementScrollProgress } from "@/hooks/use-element-scroll";
 
 const rise = (delay: number) => ({
@@ -91,7 +90,7 @@ function Typewriter() {
   const active = useInView(ref);
   const typed = useTypewriter({ words: profile.taglines, active });
   return (
-    <div ref={ref} className="mt-5 flex h-6 items-center gap-2 font-mono text-sm text-muted-foreground">
+    <div ref={ref} className="mt-5 flex h-6 items-center gap-2 whitespace-nowrap font-mono text-xs text-muted-foreground sm:text-sm">
       <span className="text-primary" aria-hidden>
         ~/
       </span>
@@ -101,73 +100,17 @@ function Typewriter() {
   );
 }
 
-const BADGE_INTERVAL = 2800;
-
-/**
- * Cycles through the availability statuses. Sized to the longest phrase (an
- * invisible stack underneath) so the pill never jumps in width, and owns its
- * own state so each swap re-renders only the badge.
- */
+/** One clear availability line — recruiters shouldn't have to wait for a rotation to see it. */
 function AvailabilityBadge() {
-  const statuses = profile.availability;
-  const [index, setIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const reduce = useReducedMotion();
-
-  useEffect(() => {
-    if (paused) return;
-    const id = setInterval(() => {
-      if (!document.hidden) setIndex((i) => (i + 1) % statuses.length);
-    }, BADGE_INTERVAL);
-    return () => clearInterval(id);
-  }, [statuses.length, paused]);
-
   return (
-    <span
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      className="inline-flex items-center gap-3 rounded-full border border-border bg-card py-1 pl-1 pr-3.5 shadow-[inset_0_1px_0_rgb(255_255_255/0.04)]"
-    >
-      {/* Status chip */}
+    <span className="inline-flex items-center gap-3 rounded-full border border-border bg-card py-1 pl-1 pr-3.5 shadow-[inset_0_1px_0_rgb(255_255_255/0.04)]">
       <span className="inline-flex items-center gap-2 rounded-full bg-primary/12 px-2.5 py-1 font-mono text-[0.625rem] font-medium uppercase tracking-[0.16em] text-primary">
         <span className="live-dot h-1.5 w-1.5 shrink-0 rounded-full bg-primary" aria-hidden />
         Available
       </span>
-
       <span className="sr-only">{profile.greeting}</span>
-
-      {/* Rotating status — sized to the longest phrase so the pill never jumps */}
-      <span aria-hidden className="grid overflow-hidden text-[0.8125rem] leading-5 text-foreground">
-        {statuses.map((s) => (
-          <span key={s} className="invisible col-start-1 row-start-1 whitespace-nowrap">
-            {s}
-          </span>
-        ))}
-        <AnimatePresence mode="popLayout" initial={false}>
-          <motion.span
-            key={statuses[index]}
-            initial={reduce ? { opacity: 0 } : { opacity: 0, y: "80%", filter: "blur(4px)" }}
-            animate={{ opacity: 1, y: "0%", filter: "blur(0px)" }}
-            exit={reduce ? { opacity: 0 } : { opacity: 0, y: "-80%", filter: "blur(4px)" }}
-            transition={{ duration: 0.5, ease: EASE }}
-            className="col-start-1 row-start-1 whitespace-nowrap"
-          >
-            {statuses[index]}
-          </motion.span>
-        </AnimatePresence>
-      </span>
-
-      {/* Progress ticks: which status is showing */}
-      <span aria-hidden className="hidden items-center gap-1 sm:flex">
-        {statuses.map((s, i) => (
-          <span
-            key={s}
-            className={cn(
-              "h-1 rounded-full transition-all duration-500 ease-out-strong",
-              i === index ? "w-3.5 bg-primary" : "w-1 bg-foreground/20",
-            )}
-          />
-        ))}
+      <span aria-hidden className="whitespace-nowrap text-[0.8125rem] leading-5 text-foreground">
+        {profile.availability}
       </span>
     </span>
   );
@@ -181,7 +124,6 @@ export function Hero() {
   const copyY = useTransform(scrollYProgress, [0, 1], [0, shouldReduceMotion ? 0 : -40]);
 
   const [firstName, ...restName] = profile.name.split(" ");
-  const [headlineLead, headlineAccent] = profile.headline.split(" & ");
 
   return (
     <section ref={heroRef} id="top" className="relative flex min-h-svh flex-col overflow-hidden pt-24 lg:h-svh lg:min-h-[35rem] lg:pt-[5.25rem]">
@@ -214,13 +156,8 @@ export function Hero() {
             {...rise(0.55)}
             className="mt-8 max-w-xl text-balance text-xl lg:mt-[3svh] leading-snug text-muted-foreground sm:text-2xl"
           >
-            <span className="text-foreground">{headlineLead}</span>
-            {headlineAccent && (
-              <>
-                {" "}&amp;{" "}
-                <span className="font-serif italic text-foreground">{headlineAccent}</span>
-              </>
-            )}
+            <span className="text-foreground">{profile.headline}</span>{" "}
+            <span className="font-serif italic text-foreground">{profile.headlineAccent}</span>
           </motion.p>
 
           <motion.div {...rise(0.65)}>

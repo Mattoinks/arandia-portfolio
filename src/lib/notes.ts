@@ -19,6 +19,8 @@ export interface Note {
   /** ISO date, e.g. "2026-10-20". */
   date: string;
   tags: string[];
+  /** Slug of the project this note is about, if any. */
+  project?: string;
   published: boolean;
   body: NoteBlock[];
 }
@@ -31,6 +33,7 @@ export const notes: Note[] = [
       "How PDF extraction with an OCR fallback, layout-aware table parsing and similarity-based duplicate checks turned a manual RMA masterfile workflow into a reviewed, mostly automatic one.",
     date: "2026-10-14",
     tags: ["Python", "OCR", "FastAPI", "PostgreSQL"],
+    project: "infineon",
     published: true,
     body: [
       { type: "h2", text: "The problem" },

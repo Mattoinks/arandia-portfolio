@@ -1,6 +1,6 @@
 import { after } from "next/server";
 import { buildSystemPrompt, HANDOFF, parseReply } from "@/lib/assistant/knowledge";
-import { profile } from "@/lib/data";
+import { profile, projects } from "@/lib/data";
 import { escapeHtml } from "@/lib/contact-email";
 import { clientIp, createRateLimiter } from "@/lib/rate-limit";
 
@@ -82,8 +82,13 @@ export async function POST(request: Request) {
   }
 
   let messages: ChatMessage[] | null = null;
+  let project: string | undefined;
   try {
-    messages = parseMessages(await request.json());
+    const body = await request.json();
+    messages = parseMessages(body);
+    // Asked from a case study page: give Matte that project's full details.
+    const slug = (body as { project?: unknown }).project;
+    if (typeof slug === "string" && projects.some((p) => p.slug === slug)) project = slug;
   } catch {
     // fall through to 400
   }
@@ -95,7 +100,7 @@ export async function POST(request: Request) {
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         model: process.env.GROQ_MODEL || "openai/gpt-oss-20b",
-        messages: [{ role: "system", content: buildSystemPrompt() }, ...messages],
+        messages: [{ role: "system", content: buildSystemPrompt(project) }, ...messages],
         temperature: 0.3,
         max_completion_tokens: 600,
         reasoning_effort: "low",

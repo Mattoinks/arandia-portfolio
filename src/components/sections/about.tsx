@@ -31,9 +31,9 @@ export function About() {
         <Eyebrow index="06">About me</Eyebrow>
       </motion.div>
       <h2 className="max-w-4xl text-balance font-heading text-5xl font-medium leading-[0.95] tracking-[-0.05em] sm:text-7xl lg:text-[5.5rem]">
-        <TextReveal text="Problem solver." className="block" />{" "}
+        <TextReveal text="Real clients." className="block" />{" "}
         <TextReveal
-          text="Digital craftsman."
+          text="Real systems."
           delay={0.15}
           className="block"
           wordClassName="font-serif font-normal italic tracking-[-0.02em] text-primary"
@@ -62,14 +62,17 @@ export function About() {
             className="mt-12 grid grid-cols-3 divide-x divide-border border-y border-border"
           >
             {profile.stats.map((stat) => {
-              const numericValue = Number(stat.value);
+              // "62%" counts up with its suffix; a year like 2027 is shown as-is.
+              const [, digits, suffix] = /^(\d+)(\D*)$/.exec(stat.value) ?? [];
+              const numericValue = Number(digits);
+              const counts = digits !== undefined && numericValue < 1000;
               return (
                 <div key={stat.label} className="flex flex-col-reverse px-4 py-6 first:pl-0 sm:px-6">
                   <dt className="mt-2 font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground">
                     {stat.label}
                   </dt>
                   <dd className="font-heading text-4xl font-medium tracking-[-0.05em] tabular sm:text-5xl">
-                    {Number.isFinite(numericValue) ? <AnimatedCounter value={numericValue} /> : stat.value}
+                    {counts ? <AnimatedCounter value={numericValue} suffix={suffix} /> : stat.value}
                   </dd>
                 </div>
               );

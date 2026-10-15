@@ -91,7 +91,7 @@ export function Certifications() {
                   </div>
                   <div>
                     <dt className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground">
-                      Credential ID
+                      Certiport ID
                     </dt>
                     <dd className="mt-1.5 font-mono text-sm tabular">{cert.credentialId}</dd>
                   </div>

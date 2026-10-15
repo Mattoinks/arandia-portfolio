@@ -1,18 +1,14 @@
 export const profile = {
   name: "Matthew Caramillo Arandia",
-  role: "Full-Stack Developer & IT Professional",
-  headline: "Engineering Scalable Systems & Immersive Digital Experiences",
+  role: "Full-Stack Developer",
+  /** Hero line under the name; the accent part is set in italic. */
+  headline: "I build web and mobile systems",
+  headlineAccent: "for real clients.",
   location: "Dasmariñas, Cavite, Philippines",
-  /** Full availability sentence — used for screen readers and the social preview image. */
-  greeting: "Open to internships, freelance, full-time roles & collaborations",
-  /** Short statuses the hero badge cycles through. */
-  availability: [
-    "Open to internships",
-    "Available for freelance",
-    "Open to full-time roles",
-    "Open to remote work",
-    "Open to collaborations",
-  ],
+  /** Full availability sentence — used for screen readers, the social preview image and Matte. */
+  greeting: "Open to internships, part-time and freelance work now, and full-time roles from 2027 (remote OK)",
+  /** Short version for the hero badge — one clear line, kept short enough for phones. */
+  availability: "Part-time now · Full-time 2027",
   /** Work arrangement — shown by the assistant and in the hero badge. */
   workArrangement: "Open to remote work (based in the Philippines, GMT+8)",
   /**
@@ -34,18 +30,20 @@ export const profile = {
   avatar: "/assets/avatar/1X1-arandia.jpg",
   avatarCutout: "/assets/avatar/avatar-no-bg.png",
   resumeUrl: "/assets/resume/RESUME_ARANDIA.pdf",
+  /** Typewriter proof lines under the hero headline — real results only. */
   taglines: [
-    "I build systems that scale.",
-    "I design APIs that don't break.",
-    "I ship products end-to-end.",
-    "I turn architecture into velocity.",
+    "Cut RMA processing from 8 to 3 min.",
+    "Building SahariPay for PH landlords.",
+    "Shipped KALINGA for Bridges of Hope.",
+    "Web and mobile, database to screen.",
   ],
   bio: "I design and build full-stack products — mobile, web, and everything behind them — with a focus on clean architecture and interfaces that feel effortless.",
   /** Phrases in `bio` set in italic accent where the bio is shown large. */
   bioEmphasis: ["clean architecture", "effortless"],
+  /** About strip. Values below 1000 count up; years stay put. */
   stats: [
-    { label: "Projects", value: "4" },
-    { label: "Certificates", value: "2" },
+    { label: "Faster RMA processing", value: "62%" },
+    { label: "Client projects", value: "2" },
     { label: "BSIT Class of", value: "2027" },
   ],
   /** What he's working on right now — each row links to its case study when there is one. */
@@ -95,7 +93,7 @@ export const education: EducationEntry[] = [
     logo: "/assets/icons/NU.png",
     description:
       "Focused on web and mobile application development — with hands-on experience building full-stack, database-driven systems for real clients and organizations.",
-    highlights: ["Dean's List", "Best Capstone Paper and System"],
+    highlights: ["Dean's List"],
   },
 ];
 
@@ -289,7 +287,6 @@ export const projects: Project[] = [
     description:
       "A centralized RMA Masterfile Automation System, developed as a freelance project for Infineon Technologies, Singapore, to streamline Delivery Note processing, automate PDF data extraction, and centralize RMA records and lot breakdowns into an organized Excel masterfile. Implements data validation, duplicate detection, and automated record management, along with role-based portals for internal staff and requesters. Built with React, FastAPI, and Supabase PostgreSQL for centralized data management, with Excel export retained for reporting and external use.",
     tags: ["Website"],
-    codeUrl: "https://github.com/Mattoinks/Masterfile-Automation-System.git",
     thumbnail: "/assets/images/projects/infineon/cover.png",
     gallery: [
       {
@@ -463,7 +460,6 @@ export const experience: ExperienceEntry[] = [
     points: [
       "Four role-based workspaces for Guardians, Nurses, Program Staff and Admins",
       "Admissions, care documentation, recovery tracking and visitation in one system",
-      "Recognized as Best Capstone Paper and System",
     ],
     project: "kalinga",
   },

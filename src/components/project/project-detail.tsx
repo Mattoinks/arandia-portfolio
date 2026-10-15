@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, ArrowUpRight, Database, GitBranch, Layers } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Database, GitBranch, Layers, Sparkles } from "lucide-react";
 import { GithubIcon } from "@/components/icons/brand-icons";
 import { MagneticButton } from "@/components/ui/magnetic-button";
 import { Surface } from "@/components/ui/surface";
@@ -11,6 +11,8 @@ import { TextReveal } from "@/components/ui/text-reveal";
 import { TiltedCard } from "@/components/reactbits/tilted-card";
 import { MetricTiles } from "@/components/project/metric-tiles";
 import { blurPlaceholders } from "@/lib/blur-placeholders";
+import { OPEN_ASSISTANT_EVENT } from "@/lib/contact-prefill";
+import { publishedNotes } from "@/lib/notes";
 import type { Project, ProjectShot } from "@/lib/data";
 import { EASE, fadeUp, staggerContainer, viewport } from "@/lib/motion";
 import { cn } from "@/lib/utils";
@@ -21,6 +23,63 @@ const STATUS: Record<Project["status"], { label: string; live: boolean }> = {
   "in-progress": { label: "In progress", live: true },
   archived: { label: "Archived", live: false },
 };
+
+/** Starter questions on every case study — Matte gets the page's project details with them. */
+const PROJECT_QUESTIONS = ["How does it work?", "What did Matthew build?", "What tech was used?"];
+
+const askMatte = (question: string) =>
+  window.dispatchEvent(new CustomEvent(OPEN_ASSISTANT_EVENT, { detail: { question } }));
+
+/** "Ask Matte about this project" — sits after the case study, before prev/next. */
+function AskAboutProject({ project }: { project: Project }) {
+  const label = project.name.length > 24 ? `the ${project.tagline} project` : project.name;
+  const note = publishedNotes.find((n) => n.project === project.slug);
+  return (
+    <motion.section
+      initial="hidden"
+      whileInView="show"
+      viewport={viewport}
+      variants={fadeUp}
+      aria-label={`Ask about ${label}`}
+      className="mt-24 flex flex-col gap-6 border-t border-border pt-10 md:flex-row md:items-center md:justify-between"
+    >
+      <div className="flex items-center gap-4">
+        <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full bg-primary">
+          <Image src="/assets/avatar/assistant-icon-v4.webp" alt="" fill sizes="48px" className="object-cover" />
+        </span>
+        <div>
+          <p className="font-heading text-xl font-medium tracking-[-0.02em]">Questions about {label}?</p>
+          <p className="mt-0.5 text-sm text-muted-foreground">
+            Ask Matte, Matthew&apos;s AI assistant — it knows this project.
+            {note && (
+              <>
+                {" "}Or{" "}
+                <Link href={`/notes/${note.slug}`} className="link-underline pb-0.5 text-foreground">
+                  read the write-up
+                </Link>
+                .
+              </>
+            )}
+          </p>
+        </div>
+      </div>
+      <ul className="flex flex-wrap gap-2">
+        {PROJECT_QUESTIONS.map((q) => (
+          <li key={q}>
+            <button
+              type="button"
+              onClick={() => askMatte(q)}
+              className="press inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm transition-colors duration-300 hover:border-primary/40 hover:text-foreground"
+            >
+              <Sparkles className="h-3.5 w-3.5 text-primary" strokeWidth={1.5} aria-hidden />
+              {q}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </motion.section>
+  );
+}
 
 const ARCHITECTURE = [
   { key: "database", label: "Database design", icon: Database },
@@ -294,8 +353,10 @@ export function ProjectDetail({ project, index, total, prev, next }: ProjectDeta
         </section>
       )}
 
+      <AskAboutProject project={project} />
+
       {/* Prev / next */}
-      <nav aria-label="More projects" className="mt-24 grid gap-4 border-t border-border pt-10 md:grid-cols-12">
+      <nav aria-label="More projects" className="mt-12 grid gap-4 border-t border-border pt-10 md:grid-cols-12">
         <Link
           href={`/work/${prev.slug}`}
           className="group flex flex-col justify-between rounded-[1.75rem] border border-border p-6 transition-colors duration-300 hover:border-foreground/25 md:col-span-4"

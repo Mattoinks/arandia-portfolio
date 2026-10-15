@@ -57,7 +57,7 @@ export const metadata: Metadata = {
   keywords: [
     "Matthew Arandia",
     "Full-Stack Developer",
-    "IT Professional",
+    "Mobile Developer",
     "Web Development",
     "Mobile Development",
     "Portfolio",
