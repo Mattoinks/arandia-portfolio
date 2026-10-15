@@ -5,6 +5,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Backdrop } from "@/components/backdrop";
 import { OffscreenIdle } from "@/components/offscreen-idle";
+import { Analytics } from "@vercel/analytics/next";
 import { SmoothScroll } from "@/components/smooth-scroll";
 import { ClickSpark } from "@/components/reactbits/click-spark";
 import { ThemeColorSync } from "@/components/theme-color-sync";
@@ -75,6 +76,10 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
   },
+  // Google Search Console ownership check — paste the code into this env var on Vercel.
+  verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+    ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
+    : undefined,
 };
 
 export const viewport: Viewport = {
@@ -129,6 +134,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <ClickSpark />
             <ThemeColorSync />
             <ScrollProgress />
+            <Analytics />
             <CommandMenuProvider>
               <div className="relative z-10 flex min-h-full flex-col">{children}</div>
               <ChatWidget />
