@@ -71,7 +71,8 @@ export function SplitText({
         charsClass: "split-char",
         wordsClass: "split-word",
         linesClass: "split-line",
-        aria: "auto",
+        // The split copy is aria-hidden below; screen readers get the plain sr-only text.
+        aria: "none",
       });
       const targets = splitType.includes("chars") ? split.chars : splitType === "lines" ? split.lines : split.words;
 
@@ -111,8 +112,11 @@ export function SplitText({
   );
 
   return (
-    <Tag ref={ref as React.RefObject<never>} className={cn("inline-block", className)}>
-      {text}
-    </Tag>
+    <>
+      <Tag ref={ref as React.RefObject<never>} aria-hidden className={cn("inline-block", className)}>
+        {text}
+      </Tag>
+      <span className="sr-only">{text}</span>
+    </>
   );
 }

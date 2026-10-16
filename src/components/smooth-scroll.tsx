@@ -5,16 +5,19 @@ import Lenis from "lenis";
 import { scrollToTarget, setLenis } from "@/lib/smooth-scroll";
 
 /**
- * Inertial page scrolling (skipped for reduced-motion users) plus one handler
+ * Inertial wheel scrolling (skipped for reduced-motion users and touch screens) plus one handler
  * for every in-page "#section" link, so they all land at the same precise
  * spot: the section's content just below the navbar.
  */
 export function SmoothScroll() {
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Lenis only smooths wheel input — touch screens keep native momentum scrolling,
+    // so on phones it would just add startup and per-frame work for nothing.
+    const touch = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
     let lenis: Lenis | null = null;
 
-    if (!reduce) {
+    if (!reduce && !touch) {
       lenis = new Lenis({ autoRaf: true, lerp: 0.1, wheelMultiplier: 1 });
       setLenis(lenis);
     }

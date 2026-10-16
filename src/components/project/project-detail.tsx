@@ -187,10 +187,12 @@ function Frame({ children, className }: { children: React.ReactNode; className?:
 
 function Cover({ project }: { project: Project }) {
   return (
+    // Transform-only entrance: the cover is the page's main image, so it must be
+    // visible from the first paint instead of waiting for JavaScript to fade it in.
     <motion.div
-      initial={{ opacity: 0, y: 40, scale: 0.97 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: 1.2, delay: 0.35, ease: EASE }}
+      initial={{ y: 40, scale: 0.97 }}
+      animate={{ y: 0, scale: 1 }}
+      transition={{ duration: 1.2, delay: 0.1, ease: EASE }}
     >
       <TiltedCard rotateAmplitude={3} scaleOnHover={1.01}>
         <Frame>

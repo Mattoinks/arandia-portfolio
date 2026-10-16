@@ -10,7 +10,7 @@ import { SmoothScroll } from "@/components/smooth-scroll";
 import { ClickSpark } from "@/components/reactbits/click-spark";
 import { ThemeColorSync } from "@/components/theme-color-sync";
 import { CommandMenuProvider } from "@/components/command-menu";
-import { ChatWidget } from "@/components/assistant/chat-widget";
+import { ChatWidget } from "@/components/assistant/chat-widget-lazy";
 import { ScrollProgress } from "@/components/scroll-progress";
 import { profile, socials } from "@/lib/data";
 import { SITE_URL } from "@/lib/site";
