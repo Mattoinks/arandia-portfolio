@@ -26,8 +26,10 @@ export default function ResumePage() {
   return (
     <>
       <ProjectHeader backHref="/" backLabel="Portfolio" />
+      {/* Print: margins live on the article, so the browser adds no date/URL header and the page stays white. */}
+      <style>{"@media print { @page { size: A4; margin: 0; } :root { color-scheme: light; } }"}</style>
       <main id="main-content" className="flex-1">
-        <article className="mx-auto max-w-4xl px-6 pb-20 pt-28 sm:px-10 sm:pt-32 print:max-w-none print:p-0 print:text-black">
+        <article className="mx-auto max-w-4xl px-6 pb-20 pt-28 sm:px-10 sm:pt-32 print:max-w-none print:px-[14mm] print:py-[12mm] print:text-black">
           {/* Header */}
           <header className="flex flex-col gap-6 border-b border-border pb-8 sm:flex-row sm:items-end sm:justify-between print:border-neutral-300 print:pb-4">
             <div>
@@ -75,16 +77,16 @@ export default function ResumePage() {
               <Heading>Experience</Heading>
               <div className="space-y-7 print:space-y-3">
                 {experience.map((e) => (
-                  <div key={e.org} className="grid gap-1 sm:grid-cols-4 sm:gap-6 print:break-inside-avoid">
-                    <p className="font-mono text-xs text-muted-foreground print:text-[10px]">
+                  <div key={e.org} className="grid gap-1 sm:grid-cols-4 sm:gap-6 print:grid-cols-[1fr_auto] print:gap-x-6 print:break-inside-avoid">
+                    <p className="font-mono text-xs text-muted-foreground print:col-start-2 print:row-start-1 print:max-w-[13rem] print:justify-self-end print:pt-0.5 print:text-right print:text-[9px]">
                       {e.period}
                       <span className="block">{e.type}</span>
                     </p>
-                    <div className="sm:col-span-3">
+                    <div className="sm:col-span-3 print:col-span-1 print:col-start-1 print:row-start-1">
                       <h3 className="font-medium print:text-sm">
                         {e.role} · <span className="text-muted-foreground print:text-neutral-700">{e.org}</span>
                       </h3>
-                      <ul className="mt-2 list-disc space-y-1 pl-5 text-[0.9375rem] text-muted-foreground marker:text-primary print:text-xs print:text-neutral-800">
+                      <ul className="mt-2 list-disc space-y-1 pl-5 print:mt-1 print:space-y-0.5 text-[0.9375rem] text-muted-foreground marker:text-primary print:text-xs print:text-neutral-800">
                         {e.points.map((pt) => (
                           <li key={pt}>{pt}</li>
                         ))}
@@ -95,7 +97,7 @@ export default function ResumePage() {
               </div>
             </section>
 
-            <section>
+            <section className="print:hidden">
               <Heading>Projects</Heading>
               <div className="grid gap-4 sm:grid-cols-2 print:gap-2">
                 {projects.map((p) => (
@@ -124,9 +126,9 @@ export default function ResumePage() {
             <section>
               <Heading>Education</Heading>
               {education.map((e) => (
-                <div key={e.institution} className="grid gap-1 sm:grid-cols-4 sm:gap-6">
-                  <p className="font-mono text-xs text-muted-foreground print:text-[10px]">{e.period}</p>
-                  <div className="sm:col-span-3">
+                <div key={e.institution} className="grid gap-1 sm:grid-cols-4 sm:gap-6 print:grid-cols-[1fr_auto] print:gap-x-6">
+                  <p className="font-mono text-xs text-muted-foreground print:col-start-2 print:row-start-1 print:justify-self-end print:pt-0.5 print:text-right print:text-[9px]">{e.period}</p>
+                  <div className="sm:col-span-3 print:col-span-1 print:col-start-1 print:row-start-1">
                     <h3 className="font-medium print:text-sm">{e.institution}</h3>
                     <p className="text-[0.9375rem] text-muted-foreground print:text-xs print:text-neutral-800">{e.degree}</p>
                     {e.highlights && <p className="mt-1 text-sm text-primary print:text-xs">{e.highlights.join(" · ")}</p>}
@@ -155,9 +157,9 @@ export default function ResumePage() {
               <Heading>Skills</Heading>
               <dl className="space-y-2.5">
                 {skillGroups.map((g) => (
-                  <div key={g.id} className="grid gap-1 sm:grid-cols-4 sm:gap-6">
+                  <div key={g.id} className="grid gap-1 sm:grid-cols-4 sm:gap-6 print:grid-cols-[10rem_1fr] print:gap-4">
                     <dt className="text-sm text-muted-foreground print:text-xs">{g.label}</dt>
-                    <dd className="text-[0.9375rem] sm:col-span-3 print:text-xs">{g.items.map((i) => i.name).join(" · ")}</dd>
+                    <dd className="text-[0.9375rem] sm:col-span-3 print:col-span-1 print:text-xs">{g.items.map((i) => i.name).join(" · ")}</dd>
                   </div>
                 ))}
               </dl>

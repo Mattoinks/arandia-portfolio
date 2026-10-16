@@ -29,7 +29,7 @@ export const profile = {
   email: "mattarandia.07@gmail.com",
   avatar: "/assets/avatar/1X1-arandia.jpg",
   avatarCutout: "/assets/avatar/avatar-no-bg.png",
-  resumeUrl: "/assets/resume/RESUME_ARANDIA.pdf",
+  resumeUrl: "/assets/resume/Matthew_Arandia_Resume.pdf",
   /** Typewriter proof lines under the hero headline — real results only. */
   taglines: [
     "Cut RMA processing from 8 to 3 min.",
