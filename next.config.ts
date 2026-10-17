@@ -16,6 +16,9 @@ const nextConfig: NextConfig = {
         destination: "/assets/resume/Matthew_Arandia_Resume.pdf",
         permanent: true,
       },
+      // Removed at the client's request (proprietary) — old links land on the Work section.
+      { source: "/work/infineon", destination: "/#work", permanent: true },
+      { source: "/notes/:slug*", destination: "/#work", permanent: false },
     ];
   },
 };

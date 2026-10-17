@@ -181,7 +181,7 @@ export const SUGGESTED: Starter[] = [
     answer: `${projects.length} projects so far: ${projects
       .map((p) => `${p.name} (${p.tagline})`)
       .join(", ")}. Each has its own case study page in the Work section.`,
-    followUps: ["Tell me about the Infineon project", "Tell me about KALINGA", "Is he available?"],
+    followUps: ["Tell me about SahariPay", "Tell me about KALINGA", "Is he available?"],
   },
   {
     question: "How can I reach him?",
@@ -218,14 +218,14 @@ export const LOCAL_ANSWERS: Starter[] = [
     followUps: ["What has he built?", "Is he available?"],
   },
   {
-    question: "Tell me about the Infineon project",
-    answer: projectAnswer("infineon"),
+    question: "Tell me about SahariPay",
+    answer: projectAnswer("sahari-pay"),
     followUps: ["Tell me about KALINGA", "What's his tech stack?", "How can I reach him?"],
   },
   {
     question: "Tell me about KALINGA",
     answer: projectAnswer("kalinga"),
-    followUps: ["Tell me about the Infineon project", "Is he available?", "How can I reach him?"],
+    followUps: ["Tell me about SahariPay", "Is he available?", "How can I reach him?"],
   },
   {
     question: "What are his socials?",

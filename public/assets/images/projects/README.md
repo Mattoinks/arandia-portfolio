@@ -2,7 +2,6 @@
 
 One folder per project, named after its `slug` in `src/lib/data.ts`:
 
-- `infineon/` — RMA Masterfile Automation System
 - `kalinga/` — KALINGA
 - `sahari-pay/` — SAHARI PAY
 - `signa2z/` — SIGNA2Z

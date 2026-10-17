@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { certifications, education, experience, profile, projects } from "./data";
+import { certifications, education, profile, projects } from "./data";
 
 describe("projects", () => {
   it("has a unique slug per project", () => {
@@ -40,16 +40,12 @@ describe("certifications", () => {
 });
 
 describe("profile.stats", () => {
-  it("keeps the Client projects stat in sync with freelance and client work in experience", () => {
-    const stat = profile.stats.find((s) => s.label === "Client projects");
-    const clientWork = experience.filter((e) => /freelance|client/i.test(e.type));
-    expect(stat?.value).toBe(String(clientWork.length));
+  it("keeps the Projects stat in sync with the number of listed projects", () => {
+    expect(profile.stats.find((s) => s.label === "Projects")?.value).toBe(String(projects.length));
   });
 
-  it("keeps the RMA speed-up stat in sync with the Infineon case study", () => {
-    const stat = profile.stats.find((s) => s.label === "Faster RMA processing");
-    const metric = projects.find((p) => p.slug === "infineon")?.metrics?.find((m) => m.value === stat?.value);
-    expect(metric).toBeDefined();
+  it("keeps the Certificates stat in sync with the number of listed certifications", () => {
+    expect(profile.stats.find((s) => s.label === "Certificates")?.value).toBe(String(certifications.length));
   });
 });
 

@@ -15,9 +15,8 @@ const IMAGES = {
   avatar: "public/assets/avatar/1X1-arandia.jpg",
   avatarCutout: "public/assets/avatar/avatar-no-bg.png",
   kalinga: "public/assets/images/projects/kalinga/cover.png",
-  infineon: "public/assets/images/projects/infineon/cover.png",
   signa2z: "public/assets/images/projects/signa2z/cover.png",
-  "sahari-pay": "public/assets/images/projects/sahari-pay/cover.png",
+  "sahari-pay": "public/assets/images/projects/sahari-pay/web-landing-sahari.png",
 };
 
 async function main() {

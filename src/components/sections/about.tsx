@@ -62,7 +62,7 @@ export function About() {
             className="mt-12 grid grid-cols-3 divide-x divide-border border-y border-border"
           >
             {profile.stats.map((stat) => {
-              // "62%" counts up with its suffix; a year like 2027 is shown as-is.
+              // Counts up (with any suffix, e.g. "%"); a year like 2027 is shown as-is.
               const [, digits, suffix] = /^(\d+)(\D*)$/.exec(stat.value) ?? [];
               const numericValue = Number(digits);
               const counts = digits !== undefined && numericValue < 1000;

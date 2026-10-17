@@ -40,7 +40,7 @@ describe("suggestEmail", () => {
   it("leaves real addresses alone", () => {
     expect(suggestEmail("juan@gmail.com")).toBeNull();
     expect(suggestEmail("juan@mail.com")).toBeNull();
-    expect(suggestEmail("juan@infineon.com")).toBeNull();
+    expect(suggestEmail("juan@company.com.ph")).toBeNull();
     expect(suggestEmail("not-an-email")).toBeNull();
   });
 });

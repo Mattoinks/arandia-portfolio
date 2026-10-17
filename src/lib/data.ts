@@ -32,7 +32,6 @@ export const profile = {
   resumeUrl: "/assets/resume/Matthew_Arandia_Resume.pdf",
   /** Typewriter proof lines under the hero headline — real results only. */
   taglines: [
-    "Cut RMA processing from 8 to 3 min.",
     "Building SahariPay for PH landlords.",
     "Shipped KALINGA for Bridges of Hope.",
     "Web and mobile, database to screen.",
@@ -42,8 +41,8 @@ export const profile = {
   bioEmphasis: ["clean architecture", "effortless"],
   /** About strip. Values below 1000 count up; years stay put. */
   stats: [
-    { label: "Faster RMA processing", value: "62%" },
-    { label: "Client projects", value: "2" },
+    { label: "Projects", value: "3" },
+    { label: "Certificates", value: "2" },
     { label: "BSIT Class of", value: "2027" },
   ],
   /** What he's working on right now — each row links to its case study when there is one. */
@@ -55,10 +54,10 @@ export const profile = {
       href: "/work/sahari-pay",
     },
     {
-      label: "Freelancing",
-      title: "RMA automation for Infineon",
-      detail: "Delivery Note processing, 8 → 3 min",
-      href: "/work/infineon",
+      label: "Shipping",
+      title: "KALINGA for Android",
+      detail: "Rehab facility app · in Google Play review",
+      href: "/work/kalinga",
     },
     {
       label: "Studying",
@@ -69,7 +68,7 @@ export const profile = {
   /** How he works — each with a one-line proof from his projects. */
   traits: [
     { name: "Problem Solver", detail: "Turns manual, paper or spreadsheet workflows into systems." },
-    { name: "Fast Learner", detail: "Picks up each project's stack — FastAPI, Expo, Supabase." },
+    { name: "Fast Learner", detail: "Picks up each project's stack — Next.js, Expo, Supabase." },
     { name: "Detail-Oriented", detail: "Validation, edge cases and regression checks before shipping." },
     { name: "Team Player", detail: "Built KALINGA and SignA2Z with capstone teams." },
   ],
@@ -268,7 +267,7 @@ export interface ProjectGalleryGroup {
 }
 
 export interface ProjectMetric {
-  /** Big figure, e.g. "8 → 3 min". */
+  /** Big figure, e.g. "2× faster". */
   value: string;
   label: string;
 }
@@ -305,36 +304,6 @@ export interface Project {
 }
 
 export const projects: Project[] = [
-  {
-    slug: "infineon",
-    name: "RMA Masterfile Automation and Management System",
-    tagline: "Infineon",
-    role: "Freelance Full-Stack Developer · Infineon Technologies, Singapore",
-    description:
-      "A centralized RMA Masterfile Automation System, developed as a freelance project for Infineon Technologies, Singapore, to streamline Delivery Note processing, automate PDF data extraction, and centralize RMA records and lot breakdowns into an organized Excel masterfile. Implements data validation, duplicate detection, and automated record management, along with role-based portals for internal staff and requesters. Built with React, FastAPI, and Supabase PostgreSQL for centralized data management, with Excel export retained for reporting and external use.",
-    tags: ["Website"],
-    thumbnail: "/assets/images/projects/infineon/cover.png",
-    gallery: [
-      {
-        src: "/assets/images/projects/infineon/upload.png",
-        alt: "RMA system — uploading Delivery Note PDFs for extraction and validation",
-        kind: "desktop",
-      },
-    ],
-    status: "in-progress",
-    metrics: [
-      { value: "8 → 3 min", label: "Processing time per Delivery Note" },
-      { value: "62%", label: "Faster DN processing" },
-    ],
-    architecture: {
-      database:
-        "Supabase PostgreSQL is the single source of truth for RMA records and their lot breakdowns, replacing scattered spreadsheets. Excel export is kept for reporting and for teams outside the system.",
-      workflow:
-        "A Delivery Note PDF is uploaded → its data is extracted automatically → the system validates it and checks for duplicates → the RMA record and lot breakdown are saved → the organized masterfile can be exported to Excel. Internal staff and requesters each work in their own role-based portal.",
-      logic:
-        "React frontend with a FastAPI backend. Validation rules and duplicate detection catch bad or repeated entries before they reach the masterfile, and automated record management removes the manual copy-paste — cutting processing from about 8 minutes to about 3 minutes per Delivery Note.",
-    },
-  },
   {
     slug: "kalinga",
     name: "KALINGA",
@@ -412,28 +381,30 @@ export const projects: Project[] = [
       "SahariPay is a cloud-based rental property management and payment platform built for Philippine landlords and tenants. A Next.js dashboard for property admins and a React Native (Expo) app for tenants share a single Supabase backend, digitizing the whole tenancy lifecycle — tenant onboarding and ID verification, leases with automatic move-in billing, recurring monthly rent invoices, payments via GCash, bank transfer or Palawan with admin verification, maintenance requests, tenant–landlord messaging, viewing and lease-signing appointments, and push notifications. It replaces the usual mix of spreadsheets, chat apps and cash handling, with database triggers, scheduled jobs and Row Level Security keeping billing automatic and every record access-controlled.",
     tags: ["Mobile", "Web"],
     codeUrl: "https://github.com/Mattoinks/sahari-pay.git",
-    thumbnail: "/assets/images/projects/sahari-pay/cover.png",
+    thumbnail: "/assets/images/projects/sahari-pay/web-landing-sahari.png",
+    galleryGroups: [
+      {
+        id: "landlord",
+        label: "Landlord",
+        platform: "Web dashboard",
+        description: "For property owners and admins: units, tenants, billing and payment verification in one place.",
+      },
+      {
+        id: "tenant",
+        label: "Tenant",
+        platform: "Mobile app",
+        description: "For renters: apply, pay rent, request repairs and message the landlord from their phone.",
+      },
+    ],
     gallery: [
-      {
-        src: "/assets/images/projects/sahari-pay/mobile-home.png",
-        alt: "SahariPay tenant app — home screen with amount due, lease details and quick actions",
-        kind: "mobile",
-      },
-      {
-        src: "/assets/images/projects/sahari-pay/mobile-payment.png",
-        alt: "SahariPay tenant app — submitting a payment with method, transaction code and proof screenshot",
-        kind: "mobile",
-      },
-      {
-        src: "/assets/images/projects/sahari-pay/mobile-chat.png",
-        alt: "SahariPay tenant app — message thread with the landlord",
-        kind: "mobile",
-      },
-      {
-        src: "/assets/images/projects/sahari-pay/mobile-maintenance.png",
-        alt: "SahariPay tenant app — filing a maintenance request by category with an optional photo",
-        kind: "mobile",
-      },
+      { src: "/assets/images/projects/sahari-pay/web-landing-sahari.png", group: "landlord", kind: "desktop", title: "Landing page", alt: "The public site: what SahariPay does for landlords, with sign-in for admins." },
+      { src: "/assets/images/projects/sahari-pay/web-signin-sahari.png", group: "landlord", kind: "desktop", title: "Admin sign-in", alt: "Sign-in for admins and landlords to manage units, tenants and payments." },
+      { src: "/assets/images/projects/sahari-pay/mob-signin-sahari.png", group: "tenant", kind: "mobile", title: "Sign in", alt: "Tenants sign in to pay rent and message their landlord." },
+      { src: "/assets/images/projects/sahari-pay/mob-signup-sahari.png", group: "tenant", kind: "mobile", title: "Rental application", alt: "Sign-up with household, employment and government ID for landlord approval." },
+      { src: "/assets/images/projects/sahari-pay/mobile-home.png", group: "tenant", kind: "mobile", title: "Home", alt: "Amount due, lease details and quick actions." },
+      { src: "/assets/images/projects/sahari-pay/mobile-payment.png", group: "tenant", kind: "mobile", title: "Pay rent", alt: "Submit a payment with method, transaction code and proof screenshot." },
+      { src: "/assets/images/projects/sahari-pay/mobile-chat.png", group: "tenant", kind: "mobile", title: "Messages", alt: "A message thread with the landlord." },
+      { src: "/assets/images/projects/sahari-pay/mobile-maintenance.png", group: "tenant", kind: "mobile", title: "Maintenance request", alt: "File a repair request by category, with an optional photo." },
     ],
     status: "in-progress",
     architecture: {
@@ -482,19 +453,6 @@ export interface ExperienceEntry {
 
 export const experience: ExperienceEntry[] = [
   {
-    role: "Freelance Full-Stack Developer",
-    org: "Infineon Technologies · Singapore",
-    type: "Freelance · Remote",
-    period: "Ongoing",
-    summary: "Building an RMA masterfile automation system that replaces manual Delivery Note processing.",
-    points: [
-      "Cut processing from ~8 to ~3 minutes per Delivery Note",
-      "Automated PDF data extraction, validation and duplicate detection",
-      "React + FastAPI + Supabase PostgreSQL, with role-based portals",
-    ],
-    project: "infineon",
-  },
-  {
     role: "Full-Stack Developer",
     org: "SAHARI PAY",
     type: "Client project · Solo",
@@ -533,7 +491,7 @@ export const experience: ExperienceEntry[] = [
 export interface Testimonial {
   quote: string;
   name: string;
-  /** e.g. "Professor, National University" or "Client, Infineon" */
+  /** e.g. "Professor, National University" or "Client, SahariPay" */
   title: string;
 }
 

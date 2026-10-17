@@ -29,13 +29,13 @@ const TABLES = [
 ];
 
 const ROWS = [
-  { id: "RMA-2041", w: "w-16", live: true },
-  { id: "RMA-2040", w: "w-12", live: false },
-  { id: "RMA-2039", w: "w-20", live: true },
-  { id: "RMA-2038", w: "w-10", live: false },
-  { id: "RMA-2037", w: "w-14", live: true },
-  { id: "RMA-2036", w: "w-8", live: false },
-  { id: "RMA-2035", w: "w-16", live: false },
+  { id: "REQ-2041", w: "w-16", live: true },
+  { id: "REQ-2040", w: "w-12", live: false },
+  { id: "REQ-2039", w: "w-20", live: true },
+  { id: "REQ-2038", w: "w-10", live: false },
+  { id: "REQ-2037", w: "w-14", live: true },
+  { id: "REQ-2036", w: "w-8", live: false },
+  { id: "REQ-2035", w: "w-16", live: false },
 ];
 
 /** Browser window: an ER schema on the left feeding a records dashboard on the right. */
