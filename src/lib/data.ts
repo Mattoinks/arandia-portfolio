@@ -387,7 +387,7 @@ export const projects: Project[] = [
         id: "landlord",
         label: "Landlord",
         platform: "Web dashboard",
-        description: "For property owners and admins: units, tenants, billing and payment verification in one place.",
+        description: "For property owners and admins: units, tenants, billing, viewings, reports and tenant announcements in one dashboard.",
       },
       {
         id: "tenant",
@@ -399,6 +399,14 @@ export const projects: Project[] = [
     gallery: [
       { src: "/assets/images/projects/sahari-pay/web-landing-sahari.png", group: "landlord", kind: "desktop", title: "Landing page", alt: "The public site: what SahariPay does for landlords, with sign-in for admins." },
       { src: "/assets/images/projects/sahari-pay/web-signin-sahari.png", group: "landlord", kind: "desktop", title: "Admin sign-in", alt: "Sign-in for admins and landlords to manage units, tenants and payments." },
+      { src: "/assets/images/projects/sahari-pay/web-sahari-overview.png", group: "landlord", kind: "desktop", title: "Overview", alt: "Collected this month, outstanding balance, occupancy and overdue invoices, with a 14-day collections chart." },
+      { src: "/assets/images/projects/sahari-pay/web-units-sahari.png", group: "landlord", kind: "desktop", title: "Properties & units", alt: "Add properties and units with base rent, and set the landlord profile tenants see in the app." },
+      { src: "/assets/images/projects/sahari-pay/web-tenants-sahari.png", group: "landlord", kind: "desktop", title: "Tenants", alt: "Invite a tenant by email; assigning a unit creates the move-in invoice (advance rent + deposit) automatically." },
+      { src: "/assets/images/projects/sahari-pay/web-billing-sahari.png", group: "landlord", kind: "desktop", title: "Billing & payment channels", alt: "Invoice totals plus the GCash, bank transfer and Palawan details tenants pay through." },
+      { src: "/assets/images/projects/sahari-pay/web-viewings-sahari.png", group: "landlord", kind: "desktop", title: "Viewings & signings", alt: "Propose apartment viewings or lease signings and handle tenants' requests." },
+      { src: "/assets/images/projects/sahari-pay/web-reports-sahari.png", group: "landlord", kind: "desktop", title: "Financial reports", alt: "Export transactions to CSV or print a statement for any date range, computed server-side." },
+      { src: "/assets/images/projects/sahari-pay/web-announcements-sahari.png", group: "landlord", kind: "desktop", title: "Announcements", alt: "Broadcast a post to every tenant, or to one property or unit." },
+      { src: "/assets/images/projects/sahari-pay/web-advertisements-sahari.png", group: "landlord", kind: "desktop", title: "Home-screen banners", alt: "Sliding banners on the tenant app's home screen, optionally opening the appointment scheduler." },
       { src: "/assets/images/projects/sahari-pay/mob-signin-sahari.png", group: "tenant", kind: "mobile", title: "Sign in", alt: "Tenants sign in to pay rent and message their landlord." },
       { src: "/assets/images/projects/sahari-pay/mob-signup-sahari.png", group: "tenant", kind: "mobile", title: "Rental application", alt: "Sign-up with household, employment and government ID for landlord approval." },
       { src: "/assets/images/projects/sahari-pay/mobile-home.png", group: "tenant", kind: "mobile", title: "Home", alt: "Amount due, lease details and quick actions." },
