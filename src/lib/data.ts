@@ -98,7 +98,7 @@ export const education: EducationEntry[] = [
 
 export const socials = [
   { label: "GitHub", href: "https://github.com/Mattoinks", icon: "github" },
-  { label: "LinkedIn", href: "https://linkedin.com/in/mattoinks", icon: "linkedin" },
+  { label: "LinkedIn", href: "https://linkedin.com/in/arandiamc", icon: "linkedin" },
   { label: "Instagram", href: "https://www.instagram.com/maaatttsuuu/", icon: "instagram" },
   { label: "Facebook", href: "https://www.facebook.com/maaatttsuuu", icon: "facebook" },
   { label: "Email", href: "mailto:mattarandia.07@gmail.com", icon: "mail" },

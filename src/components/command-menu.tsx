@@ -186,7 +186,7 @@ function CommandPalette({ onClose }: { onClose: () => void }) {
         ? [{ id: "gh", group: "Elsewhere" as const, label: "GitHub", hint: "Mattoinks", icon: <GithubIcon className={ICON} />, run: () => window.open(github, "_blank", "noreferrer") }]
         : []),
       ...(linkedin
-        ? [{ id: "li", group: "Elsewhere" as const, label: "LinkedIn", hint: "mattoinks", icon: <LinkedinIcon className={ICON} />, run: () => window.open(linkedin, "_blank", "noreferrer") }]
+        ? [{ id: "li", group: "Elsewhere" as const, label: "LinkedIn", hint: "arandiamc", icon: <LinkedinIcon className={ICON} />, run: () => window.open(linkedin, "_blank", "noreferrer") }]
         : []),
     ];
   }, [onClose, resolvedTheme, setTheme, router]);
